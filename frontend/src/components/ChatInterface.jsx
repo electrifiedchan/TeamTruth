@@ -115,6 +115,7 @@ export default function ChatInterface() {
   const [inputFocused, setInputFocused] = useState(false);
   const chatEndRef = useRef(null);
   const chatContainerRef = useRef(null);
+  const prevTrustScoreRef = useRef(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -229,16 +230,25 @@ export default function ChatInterface() {
       }
       const finalScore = data.trustScore ?? trust.trust_score ?? null;
 
+      // Compute delta relative to prev score for the delta badge
+      const delta = (finalScore !== null && prevTrustScoreRef.current !== null)
+        ? finalScore - prevTrustScoreRef.current
+        : null;
+
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
           content: aiText,
           trustScore: finalScore,
+          trustDelta: delta,
           timestamp: new Date().toISOString(),
         },
       ]);
-      if (finalScore !== null) setTrustScore(finalScore);
+      if (finalScore !== null) {
+        prevTrustScoreRef.current = finalScore;
+        setTrustScore(finalScore);
+      }
       await fetchMemories();
     } catch (err) {
       toast.error(err.message || "Failed to analyze message");
@@ -699,14 +709,25 @@ export default function ChatInterface() {
                         >
                           TeamTruth Agent
                         </GradientText>
-                        {msg.trustScore != null && (
-                          <GlowBadge
-                            variant={getTrustVariant(msg.trustScore)}
-                          >
-                            <TrustTrend score={msg.trustScore} />
-                            {msg.trustScore}%
-                          </GlowBadge>
-                        )}
+                          {msg.trustScore != null && (
+                          <>
+                            <GlowBadge
+                              variant={getTrustVariant(msg.trustScore)}
+                            >
+                              <TrustTrend score={msg.trustScore} />
+                              {msg.trustScore}%
+                            </GlowBadge>
+                            {msg.trustDelta != null && msg.trustDelta !== 0 && (
+                              <span
+                                className={`text-[10px] font-bold ${
+                                  msg.trustDelta > 0 ? "text-emerald-400" : "text-red-400"
+                                }`}
+                              >
+                                {msg.trustDelta > 0 ? `+${msg.trustDelta}%` : `${msg.trustDelta}%`}
+                              </span>
+                            )}
+                          </>
+                          )}
                         <span className="text-[10px] text-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           {formatTime(msg.timestamp)}
                         </span>

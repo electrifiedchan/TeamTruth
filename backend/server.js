@@ -110,38 +110,39 @@ Be concise and specific.`
 
 // CALL 2: Structured Trust Score (Layer 1 — json_object mode)
 async function getTrustScore(user, message, memories, analysis) {
+    const isContradiction = analysis.toLowerCase().includes('contradiction detected');
     const response = await groq.chat.completions.create({
         model: 'llama-3.1-8b-instant',
         temperature: 0,
-        max_tokens: 256,
+        max_tokens: 128,
         response_format: { type: 'json_object' },
         messages: [
             {
                 role: 'system',
-                content: `You are a trust scoring engine. Output ONLY valid JSON in this exact format:
-{"trust_score": 85, "contradiction_found": false, "contradiction_summary": "None", "severity": "none"}
-Rules: trust_score is 0-100, severity is one of "none","minor","major","critical". No extra text.`
+                content: `You are a trust scoring engine. Output ONLY this JSON with no extra text:
+{"trust_score": <integer 0-100>, "contradiction_found": <true or false>, "severity": "<none|minor|major|critical>"}
+
+Rules:
+- If the analysis flags a contradiction, trust_score should be between 20-55. severity should be major or critical.
+- If no contradiction, trust_score should be between 85-100. severity should be none.
+Output ONLY the JSON object. No explanation.`
             },
             {
                 role: 'user',
-                content: `Team member: ${user}\nClaim: "${message}"\nMemories: ${memories}\nAnalysis: ${analysis}\n\nScore this.`
+                content: `Analysis result: ${analysis.slice(0, 400)}`
             }
         ]
     });
     return JSON.parse(response.choices[0].message.content);
 }
 
-// Layer 3: keyword-based fallback (mirrors frontend utility)
+// Layer 3: direct contradiction detection fallback (no keyword scanning)
 function estimateTrustFromText(text = '') {
-    const t = text.toLowerCase();
-    let score = 100, contradictionFound = false, severity = 'none';
-    const critical = ['fabricat', 'caught lying', 'directly contradicts', 'proven false'];
-    const major = ['contradict', 'inconsistent', 'conflicts with', "doesn't match", 'discrepancy'];
-    const minor = ['unclear', 'vague', 'unverified', 'no evidence', 'cannot confirm'];
-    for (const w of critical) { if (t.includes(w)) { score -= 40; contradictionFound = true; severity = 'critical'; } }
-    for (const w of major)    { if (t.includes(w)) { score -= 25; contradictionFound = true; if (severity === 'none') severity = 'major'; } }
-    for (const w of minor)    { if (t.includes(w)) { score -= 10; if (severity === 'none') severity = 'minor'; } }
-    return { trust_score: Math.max(0, Math.min(100, score)), contradiction_found: contradictionFound, contradiction_summary: contradictionFound ? 'Detected via keyword analysis.' : 'None', severity, source: 'server_fallback' };
+    const isContradiction = text.toLowerCase().includes('contradiction detected');
+    if (isContradiction) {
+        return { trust_score: 45, contradiction_found: true, contradiction_summary: 'Flagged by AI analysis.', severity: 'major', source: 'server_fallback' };
+    }
+    return { trust_score: 100, contradiction_found: false, contradiction_summary: 'None', severity: 'none', source: 'server_fallback' };
 }
 
 // ==========================================
