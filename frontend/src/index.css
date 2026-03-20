@@ -1,0 +1,269 @@
+@import "tailwindcss";
+
+/* ── PRISM DESIGN TOKENS ──────────────────────────── */
+@theme {
+  --color-prism-bg: #0a0a0f;
+  --color-prism-surface: rgba(255, 255, 255, 0.03);
+  --color-prism-border: rgba(255, 255, 255, 0.06);
+  --color-prism-text: #e2e8f0;
+  --color-prism-muted: #64748b;
+  --color-prism-accent: #818cf8;
+  --color-prism-danger: #f87171;
+  --color-prism-success: #34d399;
+  --color-prism-warning: #fbbf24;
+  --color-prism-glow-1: #6366f1;
+  --color-prism-glow-2: #8b5cf6;
+  --color-prism-glow-3: #06b6d4;
+}
+
+/* ── BASE ──────────────────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-prism-bg);
+  color: var(--color-prism-text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── GLASSMORPHISM CARD ────────────────────────────── */
+.glass {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+}
+
+.glass-strong {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  backdrop-filter: blur(40px) saturate(1.5);
+  -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+}
+
+/* ── GLOW EFFECTS ──────────────────────────────────── */
+.glow-accent {
+  box-shadow:
+    0 0 20px rgba(99, 102, 241, 0.15),
+    0 0 60px rgba(99, 102, 241, 0.05);
+}
+
+.glow-danger {
+  box-shadow:
+    0 0 20px rgba(248, 113, 113, 0.2),
+    0 0 60px rgba(248, 113, 113, 0.05);
+}
+
+.glow-success {
+  box-shadow:
+    0 0 20px rgba(52, 211, 153, 0.2),
+    0 0 60px rgba(52, 211, 153, 0.05);
+}
+
+.glow-text {
+  text-shadow:
+    0 0 20px rgba(99, 102, 241, 0.5),
+    0 0 40px rgba(139, 92, 246, 0.3);
+}
+
+/* ── AURORA BACKGROUND ─────────────────────────────── */
+@keyframes aurora-shift {
+  0%, 100% {
+    transform: translate(0%, 0%) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translate(10%, -15%) rotate(90deg) scale(1.1);
+  }
+  50% {
+    transform: translate(-5%, 10%) rotate(180deg) scale(0.95);
+  }
+  75% {
+    transform: translate(-15%, -5%) rotate(270deg) scale(1.05);
+  }
+}
+
+.aurora-blob {
+  animation: aurora-shift 15s ease-in-out infinite;
+  filter: blur(80px);
+  opacity: 0.4;
+}
+
+.aurora-blob-delayed {
+  animation: aurora-shift 20s ease-in-out infinite reverse;
+  animation-delay: -5s;
+  filter: blur(100px);
+  opacity: 0.3;
+}
+
+.aurora-blob-slow {
+  animation: aurora-shift 25s ease-in-out infinite;
+  animation-delay: -10s;
+  filter: blur(120px);
+  opacity: 0.25;
+}
+
+
+/* ── SHINY TEXT ───────────────────────────────────── */
+@keyframes shine {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.shiny-text {
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.4) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.4) 75%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 4s linear infinite;
+}
+
+/* ── STAR BORDER ───────────────────────────────────── */
+@keyframes star-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.star-border {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.star-border::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    #6366f1 10%,
+    transparent 20%,
+    #8b5cf6 30%,
+    transparent 40%,
+    #06b6d4 50%,
+    transparent 60%,
+    #6366f1 70%,
+    transparent 80%,
+    #8b5cf6 90%,
+    transparent 100%
+  );
+  animation: star-rotate 4s linear infinite;
+  border-radius: inherit;
+  z-index: -1;
+}
+
+.star-border::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: var(--color-prism-bg);
+  border-radius: 12px;
+  z-index: -1;
+}
+
+/* ── PULSE RING ────────────────────────────────────── */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+.pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* ── TYPING DOTS ───────────────────────────────────── */
+@keyframes blink-dot {
+  0%, 20% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  80%, 100% {
+    opacity: 0.2;
+  }
+}
+
+.typing-dot {
+  animation: blink-dot 1.4s infinite;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* ── GRADIENT TEXT ─────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-danger {
+  background: linear-gradient(135deg, #f87171, #fb923c);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-success {
+  background: linear-gradient(135deg, #34d399, #06b6d4);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
