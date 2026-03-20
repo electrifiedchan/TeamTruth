@@ -31,8 +31,9 @@ import PixelBlast from "./ui/PixelBlast";
 import BlurText from "./ui/BlurText";
 import StarBorderButton from "./ui/StarBorderButton";
 import GradientText from "./ui/GradientText";
+import { estimateTrustFromText } from "../utils/trustFallback";
 
-const API = "http://localhost:5000/api";
+const API = "/api";
 
 const quickMessages = [
   { text: "Hey team, I finished the database.", icon: "💬" },
@@ -217,38 +218,28 @@ export default function ChatInterface() {
       });
       const data = await res.json();
       console.log("Backend response:", data);
-      
-      // 🔥 THE FIX: Make sure you are using data.response here!
-      if (data.response) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: data.response,
-            trustScore: data.trustScore !== undefined ? data.trustScore : null,
-            timestamp: new Date().toISOString(),
-          },
-        ]);
-        if (data.trustScore !== undefined) {
-             setTrustScore(data.trustScore);
-        }
-        await fetchMemories();
-      } else if (data.success) {
-        // Fallback for old mock structure just in case
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: data.analysis,
-            trustScore: data.trustScore,
-            timestamp: new Date().toISOString(),
-          },
-        ]);
-        setTrustScore(data.trustScore);
-        await fetchMemories();
-      } else {
-        throw new Error(data.error || "Backend sent an empty response");
+
+      // Prefer the new structured response, fall back to legacy 'response' field
+      const aiText = data.analysis || data.response || "No response.";
+
+      // Get trust from structured eval, then legacy field, then frontend fallback
+      let trust = data.trustEvaluation;
+      if (!trust || typeof trust.trust_score !== "number") {
+        trust = estimateTrustFromText(aiText);
       }
+      const finalScore = data.trustScore ?? trust.trust_score ?? null;
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: aiText,
+          trustScore: finalScore,
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+      if (finalScore !== null) setTrustScore(finalScore);
+      await fetchMemories();
     } catch (err) {
       toast.error(err.message || "Failed to analyze message");
       setMessages((prev) => [
