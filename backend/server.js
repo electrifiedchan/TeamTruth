@@ -37,6 +37,12 @@ function updateTrust(user, evaluation) {
         trustLedger.set(user, { scores: [], current: 100 });
     }
     const ledger = trustLedger.get(user);
+    
+    // Dynamic Rolling Average logic
+    // We blend the history with the new claim's score. Contradictions hit harder (40% weight) than truths (20% weight).
+    const alpha = evaluation.contradiction_found ? 0.4 : 0.2;
+    const newScore = Math.round((ledger.current * (1 - alpha)) + (evaluation.trust_score * alpha));
+
     ledger.scores.push({
         score: evaluation.trust_score,
         severity: evaluation.severity,
@@ -44,7 +50,8 @@ function updateTrust(user, evaluation) {
         timestamp: Date.now(),
         source: evaluation.source || 'structured_output'
     });
-    ledger.current = evaluation.trust_score;
+    
+    ledger.current = newScore;
     return ledger;
 }
 
@@ -198,7 +205,7 @@ app.post('/api/chat', rateLimitMiddleware, async (req, res) => {
             // New structured fields
             analysis,
             trustEvaluation,
-            trustScore: trustEvaluation.trust_score,
+            trustScore: ledger.current,
             userTrustHistory: {
                 current: ledger.current,
                 totalChecks: ledger.scores.length,

@@ -1,21 +1,48 @@
-// Button with animated conic-gradient border (star-border CSS)
+import React from "react";
+
 export default function StarBorderButton({
   children,
   onClick,
   className = "",
-  disabled = false,
+  color = "#818cf8",
+  speed = "3s",
 }) {
   return (
     <button
       onClick={onClick}
-      disabled={disabled}
-      className={`star-border cursor-pointer px-8 py-3.5 font-semibold text-white
-        transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]
-        disabled:pointer-events-none disabled:opacity-40 ${className}`}
+      className={`
+        relative overflow-hidden rounded-xl
+        bg-gradient-to-r from-indigo-600 to-violet-600
+        text-white shadow-lg shadow-indigo-500/25
+        transition-all duration-300
+        hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/40
+        active:scale-95 cursor-pointer inline-flex items-center justify-center min-w-fit
+        ${className}
+      `}
     >
-      <span className="relative z-10 flex items-center justify-center gap-2">
-        {children}
-      </span>
+      {/* Animated border */}
+      <span
+        className="absolute inset-0 rounded-xl pointer-events-none"
+        style={{
+          background: `conic-gradient(from var(--angle, 0deg), transparent 60%, ${color} 100%)`,
+          padding: "1px",
+          mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+          maskComposite: "exclude",
+          animation: `spin-border ${speed} linear infinite`,
+        }}
+      />
+      {/* Children rendered directly — no extra wrapper */}
+      {children}
+      <style>{`
+        @keyframes spin-border {
+          to { --angle: 360deg; }
+        }
+        @property --angle {
+          syntax: "<angle>";
+          initial-value: 0deg;
+          inherits: false;
+        }
+      `}</style>
     </button>
   );
 }

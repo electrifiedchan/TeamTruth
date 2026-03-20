@@ -382,11 +382,11 @@ export default function ChatInterface() {
         >
           {/* ── Header ── */}
           <div
-            className="relative flex items-center justify-between px-6 py-3.5"
+            className="relative flex items-center justify-between px-6 py-3.5 z-20"
             style={{
               borderBottom: "1px solid rgba(255,255,255,0.09)",
               background:
-                "linear-gradient(180deg, rgba(255,255,255,0.09) 0%, transparent 100%)",
+                "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%)",
             }}
           >
             <div className="flex items-center gap-3">
@@ -552,19 +552,19 @@ export default function ChatInterface() {
           {/* ── Messages ── */}
           <div
             ref={chatContainerRef}
-            className="relative flex-1 overflow-y-auto px-6 py-5 space-y-4"
+            className="relative flex-1 overflow-y-auto pb-48"
             style={{
               scrollbarWidth: "none",
             }}
           >
             {/* Empty state */}
             {messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-full text-center select-none">
+              <div className="absolute inset-0 flex flex-col items-center justify-center pb-32 text-center select-none pointer-events-none z-0">
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, ease: "easeOut" }}
-                  className="flex flex-col items-center"
+                  className="flex flex-col items-center pointer-events-auto"
                 >
                   <div
                     className="relative flex h-16 w-16 items-center justify-center rounded-2xl mb-5"
@@ -585,7 +585,7 @@ export default function ChatInterface() {
                   </div>
                   <BlurText
                     text="Start a Conversation"
-                    className="text-sm font-semibold text-white mb-1.5"
+                    className="text-lg font-semibold text-white mb-2"
                     delay={50}
                     animateBy="words"
                     direction="top"
@@ -594,9 +594,9 @@ export default function ChatInterface() {
                     Send a message to analyze accountability. Seed memory first
                     for historical context.
                   </p>
-                  <div className="flex items-center gap-3 mt-5">
+                  <div className="flex items-center gap-3 mt-6">
                     <div className="h-px w-10 bg-gradient-to-r from-transparent to-white/[0.04]" />
-                    <span className="text-[9px] font-semibold tracking-[0.2em] text-white/90 uppercase">
+                    <span className="text-[10px] font-semibold tracking-[0.2em] text-white/90 uppercase">
                       Quick prompts below
                     </span>
                     <div className="h-px w-10 bg-gradient-to-l from-transparent to-white/[0.04]" />
@@ -605,9 +605,11 @@ export default function ChatInterface() {
               </div>
             )}
 
-            <AnimatePresence mode="popLayout">
-              {messages.map((msg, i) => (
-                <motion.div
+            <div className="flex w-full justify-center pt-8 relative z-10">
+              <div className="w-full max-w-[800px] flex flex-col space-y-6 px-4">
+                <AnimatePresence mode="popLayout">
+                  {messages.map((msg, i) => (
+                    <motion.div
                   key={`${i}-${msg.timestamp}`}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -623,7 +625,7 @@ export default function ChatInterface() {
                   {/* System */}
                   {msg.role === "system" && (
                     <div
-                      className="flex items-center gap-3 rounded-[14px] px-4 py-3 text-[13px] w-full"
+                      className="flex items-center gap-3 rounded-[16px] px-5 py-3.5 text-[14px] w-full"
                       style={{
                         background: "rgba(99,102,241,0.03)",
                         border: "1px solid rgba(99,102,241,0.06)",
@@ -646,11 +648,11 @@ export default function ChatInterface() {
                   {/* User */}
                   {msg.role === "user" && (
                     <div className="max-w-[72%] group">
-                      <div className="mb-1 flex items-center justify-end gap-2">
-                        <span className="text-[10px] text-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="mb-1.5 flex items-center justify-end gap-2">
+                        <span className="text-[11px] text-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           {formatTime(msg.timestamp)}
                         </span>
-                        <span className="text-[11px] font-medium text-white/80">
+                        <span className="text-[13px] font-medium text-white/80">
                           {user}
                         </span>
                         <div
@@ -665,7 +667,7 @@ export default function ChatInterface() {
                         </div>
                       </div>
                       <div
-                        className="rounded-[16px] rounded-tr-[6px] px-4 py-3 text-[13px] leading-relaxed"
+                        className="rounded-[18px] rounded-tr-[6px] px-5 py-3.5 text-[15px] md:text-base leading-[1.65]"
                         style={{
                           background:
                             "linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(79,70,229,0.08) 100%)",
@@ -682,9 +684,9 @@ export default function ChatInterface() {
                   {/* Assistant */}
                   {msg.role === "assistant" && (
                     <div className="max-w-[80%] group">
-                      <div className="mb-1 flex items-center gap-2">
+                      <div className="mb-1.5 flex items-center gap-2.5">
                         <div
-                          className="flex h-5 w-5 items-center justify-center rounded-full"
+                          className="flex h-6 w-6 items-center justify-center rounded-full"
                           style={{
                             background: msg.content.includes("Contradiction")
                               ? "rgba(248,113,113,0.12)"
@@ -705,7 +707,7 @@ export default function ChatInterface() {
                         <GradientText
                           colors={["#c7d2fe", "#818cf8", "#c7d2fe"]}
                           animationSpeed={4}
-                          className="text-[12px] font-semibold tracking-wide"
+                          className="text-[14px] font-semibold tracking-wide"
                         >
                           TeamTruth Agent
                         </GradientText>
@@ -728,12 +730,12 @@ export default function ChatInterface() {
                             )}
                           </>
                           )}
-                        <span className="text-[10px] text-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <span className="text-[11px] text-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-1">
                           {formatTime(msg.timestamp)}
                         </span>
                       </div>
                       <SpotlightCard
-                        className="rounded-[16px] rounded-tl-[6px] px-4 py-3.5 text-[13px] leading-[1.65]"
+                        className="rounded-[18px] rounded-tl-[6px] px-5 py-4 text-[15px] md:text-base leading-[1.7]"
                         spotlightColor="rgba(139,92,246,0.15)"
                         style={{
                           background: msg.content.includes("Contradiction")
@@ -775,14 +777,14 @@ export default function ChatInterface() {
                   <Bot className="h-2.5 w-2.5 text-violet-400/70" />
                 </div>
                 <div
-                  className="flex items-center gap-2 rounded-[14px] px-4 py-3"
+                  className="flex items-center gap-2.5 rounded-[16px] px-5 py-3.5"
                   style={{
                     background: "rgba(255,255,255,0.05)",
                     border: "1px solid rgba(255,255,255,0.09)",
                   }}
                 >
                   <TypingIndicator />
-                  <span className="text-[11px] text-white/60 font-medium">
+                  <span className="text-[13px] text-white/60 font-medium">
                     Analyzing
                   </span>
                 </div>
@@ -790,6 +792,8 @@ export default function ChatInterface() {
             )}
 
             <div ref={chatEndRef} />
+              </div>
+            </div> {/* END Central Column wrapper */}
 
             {/* Scroll btn */}
             <AnimatePresence>
@@ -814,89 +818,86 @@ export default function ChatInterface() {
             </AnimatePresence>
           </div>
 
-          {/* ── Quick Messages ── */}
-          <div
-            className="flex gap-1.5 overflow-x-auto px-6 py-2.5"
-            style={{
-              borderTop: "1px solid rgba(255,255,255,0.07)",
-              scrollbarWidth: "none",
-            }}
-          >
-            {quickMessages.map((qm) => (
-              <button
-                key={qm.text}
-                onClick={() => setInput(qm.text)}
-                className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-[10px]
-                  px-3 py-2 text-[11px] font-medium text-white/70
-                  transition-all duration-200 hover:text-white"
-                style={{
-                  background: "rgba(255,255,255,0.09)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                }}
+          {/* ── Floating Input Island ── */}
+          <div className="absolute bottom-0 left-0 right-0 pointer-events-none flex flex-col items-center z-30 pb-6 pt-10"
+               style={{ background: "linear-gradient(to top, rgba(8,8,16,0.98) 0%, rgba(8,8,16,0.8) 40%, transparent 100%)" }}>
+            <div className="mx-auto w-full max-w-[800px] pointer-events-auto px-4 flex flex-col gap-3">
+              
+              {/* Quick Messages */}
+              <div
+                className="flex gap-1.5 overflow-x-auto pb-1"
+                style={{ scrollbarWidth: "none" }}
               >
-                <span className="text-[12px]">{qm.icon}</span>
-                <span className="max-w-[160px] truncate">{qm.text}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* ── Input ── */}
-          <form
-            onSubmit={handleSend}
-            className="flex items-center gap-3 px-6 py-4"
-            style={{
-              borderTop: "1px solid rgba(255,255,255,0.09)",
-              background: inputFocused
-                ? "rgba(255,255,255,0.008)"
-                : "transparent",
-              transition: "background 0.3s ease",
-            }}
-          >
-            <div className="relative flex-1">
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onFocus={() => setInputFocused(true)}
-                onBlur={() => setInputFocused(false)}
-                placeholder={`Message as ${user}…`}
-                disabled={isLoading}
-                className="w-full rounded-[12px] px-4 py-3 text-[13px] text-white/80
-                  placeholder-white/20 outline-none transition-all duration-200
-                  disabled:opacity-30"
-                style={{
-                  background: "rgba(255,255,255,0.025)",
-                  border: inputFocused
-                    ? "1px solid rgba(99,102,241,0.2)"
-                    : "1px solid rgba(255,255,255,0.09)",
-                  boxShadow: inputFocused
-                    ? "0 0 0 3px rgba(99,102,241,0.04), 0 2px 8px rgba(0,0,0,0.2)"
-                    : "0 2px 4px rgba(0,0,0,0.1)",
-                }}
-              />
-              <AnimatePresence>
-                {input.trim() && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.5 }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                {quickMessages.map((qm) => (
+                  <button
+                    key={qm.text}
+                    onClick={() => setInput(qm.text)}
+                    className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-[14px]
+                      px-4 py-2.5 text-[13px] font-medium text-white/70
+                      transition-all duration-200 hover:text-white"
+                    style={{
+                      background: "rgba(255,255,255,0.06)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
+                    }}
                   >
-                    <Zap className="h-3 w-3 text-indigo-400/25" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            
-            <div className={`transition-opacity duration-200 ${!input.trim() || isLoading ? "pointer-events-none opacity-40" : ""}`}>
-              <StarBorderButton 
-                onClick={handleSend} 
-                className="h-[46px] w-[52px] !p-0 flex items-center justify-center shrink-0 cursor-pointer !rounded-[12px]" 
-                color="rgba(99,102,241,0.5)"
+                    <span className="text-[14px]">{qm.icon}</span>
+                    <span className="max-w-[180px] truncate">{qm.text}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Input Form */}
+              <form
+                onSubmit={handleSend}
+                className="flex items-center gap-3 px-3 py-3 rounded-[24px]"
+                style={{
+                  background: inputFocused ? "rgba(30, 30, 42, 0.85)" : "rgba(24, 24, 34, 0.7)",
+                  backdropFilter: "blur(20px)",
+                  border: inputFocused ? "1px solid rgba(139, 92, 246, 0.3)" : "1px solid rgba(255, 255, 255, 0.12)",
+                  boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.08)",
+                  transition: "all 0.3s ease",
+                }}
               >
-                {isLoading ? <Loader2 className="h-4 w-4 text-white animate-spin" /> : <Send className="h-4 w-4 text-white" />}
-              </StarBorderButton>
+                <div className="relative flex-1 flex items-center">
+                  <input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onFocus={() => setInputFocused(true)}
+                    onBlur={() => setInputFocused(false)}
+                    placeholder={`Message as ${user}…`}
+                    disabled={isLoading}
+                    className="w-full bg-transparent px-4 py-2 text-base text-white
+                      placeholder-white/40 outline-none disabled:opacity-30"
+                  />
+                  <AnimatePresence>
+                    {input.trim() && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.5 }}
+                        className="absolute right-2"
+                      >
+                        <Zap className="h-4 w-4 text-indigo-400/50" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                
+                <div className={`transition-opacity duration-200 shrink-0 ${!input.trim() || isLoading ? "pointer-events-none opacity-40" : ""}`}>
+                  <button 
+                    type="submit"
+                    className="flex h-11 w-11 items-center justify-center rounded-[16px] bg-white text-black hover:bg-indigo-100 transition-colors cursor-pointer"
+                  >
+                    {isLoading ? <Loader2 className="h-5 w-5 animate-spin text-indigo-600" /> : <Send className="h-4 w-4 text-indigo-600" />}
+                  </button>
+                </div>
+              </form>
+              <div className="text-center text-xs text-white/40 font-medium tracking-wide">
+                Agent may produce inaccurate information about team commitments. Verify critical details.
+              </div>
             </div>
-          </form>
+          </div>
         </div>
 
         {/* ───── RIGHT: TRUST DASHBOARD ───── */}
@@ -905,8 +906,9 @@ export default function ChatInterface() {
           style={{
             borderRadius: "20px",
             border: "1px solid rgba(255,255,255,0.05)",
+            borderLeft: "2px solid rgba(99,102,241,0.2)",
             background:
-              "linear-gradient(180deg, rgba(12,12,24,0.95) 0%, rgba(8,8,16,0.98) 100%)",
+              "linear-gradient(180deg, rgba(8,8,16,0.95) 0%, rgba(6,6,12,0.98) 100%)",
             boxShadow: `
               0 0 0 1px rgba(255,255,255,0.05),
               0 1px 2px rgba(0,0,0,0.3),

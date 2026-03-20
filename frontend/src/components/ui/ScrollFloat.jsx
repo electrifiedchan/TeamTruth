@@ -21,15 +21,16 @@ const ScrollFloat = ({
 }) => {
   const containerRef = useRef(null);
 
+  const actualStagger = letterDelay !== undefined ? letterDelay / 1000 : stagger;
+
   const splitText = useMemo(() => {
     const text = propText || (typeof children === 'string' ? children : '');
-    const actualStagger = letterDelay !== undefined ? letterDelay / 1000 : stagger;
     return text.split('').map((char, index) => (
       <span className="char" key={index}>
         {char === ' ' ? '\u00A0' : char}
       </span>
     ));
-  }, [children]);
+  }, [children, propText]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -69,7 +70,7 @@ const ScrollFloat = ({
         },
       }
     );
-  }, [scrollContainerRef, animationDuration, ease, scrollStart, scrollEnd, stagger]);
+  }, [scrollContainerRef, animationDuration, ease, scrollStart, scrollEnd, actualStagger]);
 
   return (
     <h2 ref={containerRef} className={`scroll-float ${containerClassName}`}>
