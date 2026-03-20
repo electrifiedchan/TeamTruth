@@ -27,8 +27,12 @@ import SpotlightCard from "./ui/SpotlightCard";
 import TrustGauge from "./ui/TrustGauge";
 import CountUp from "./ui/CountUp";
 import ShinyText from "./ui/ShinyText";
+import PixelBlast from "./ui/PixelBlast";
+import BlurText from "./ui/BlurText";
+import StarBorderButton from "./ui/StarBorderButton";
+import GradientText from "./ui/GradientText";
 
-const API = "/api";
+const API = "http://localhost:5000/api";
 
 const quickMessages = [
   { text: "Hey team, I finished the database.", icon: "💬" },
@@ -158,14 +162,14 @@ export default function ChatInterface() {
       const data = await res.json();
       if (data.success) {
         setIsSeeded(true);
-        toast.success("Memory seeded with 3 historical logs.", { icon: "🧠" });
+        toast.success("Memory seeded! Bob → DB, Alice → Frontend.", { icon: "🧠" });
         await fetchMemories();
         setMessages((prev) => [
           ...prev,
           {
             role: "system",
             content:
-              "Memory initialized with 3 historical records for Bob. The agent now has context about past promises.",
+              "Memory initialized. Bob is assigned the Database Schema. Alice is assigned the React Frontend UI.",
             timestamp: new Date().toISOString(),
           },
         ]);
@@ -174,6 +178,19 @@ export default function ChatInterface() {
       toast.error("Failed to seed memory");
     }
     setIsLoading(false);
+  }
+
+  async function handleClear() {
+    setMessages([]);
+    setTrustScore(null);
+    setMemories([]);
+    setIsSeeded(false);
+    try {
+      await fetch(`${API}/memory/clear`, { method: "POST" });
+      toast.success("Demo reset! Memory context cleared.", { icon: "🔄" });
+    } catch {
+      toast.error("Failed to clear backend context");
+    }
   }
 
   async function handleSend(e) {
@@ -208,10 +225,14 @@ export default function ChatInterface() {
           {
             role: "assistant",
             content: data.response,
-            trustScore: null,
+            trustScore: data.trustScore !== undefined ? data.trustScore : null,
             timestamp: new Date().toISOString(),
           },
         ]);
+        if (data.trustScore !== undefined) {
+             setTrustScore(data.trustScore);
+        }
+        await fetchMemories();
       } else if (data.success) {
         // Fallback for old mock structure just in case
         setMessages((prev) => [
@@ -281,7 +302,7 @@ export default function ChatInterface() {
             borderRadius: "12px",
             padding: "12px 18px",
             boxShadow:
-              "0 25px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03)",
+              "0 25px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07)",
           },
         }}
       />
@@ -298,6 +319,20 @@ export default function ChatInterface() {
           background: "var(--color-prism-bg, #06060e)",
         }}
       >
+        {/* ReactBits Dynamic Background */}
+        <div className="pointer-events-none fixed inset-0 z-0 opacity-20 delay-500 transition-opacity duration-1000">
+          <PixelBlast
+            color="#4f46e5"
+            variant="circle"
+            pixelSize={8}
+            speed={0.2}
+            patternScale={2}
+            patternDensity={0.3}
+            enableRipples={true}
+            edgeFade={0.4}
+            transparent={true}
+          />
+        </div>
         {/* Subtle ambient glow behind everything */}
         <div
           style={{
@@ -335,12 +370,12 @@ export default function ChatInterface() {
             background:
               "linear-gradient(180deg, rgba(12,12,24,0.95) 0%, rgba(8,8,16,0.98) 100%)",
             boxShadow: `
-              0 0 0 1px rgba(255,255,255,0.02),
+              0 0 0 1px rgba(255,255,255,0.05),
               0 1px 2px rgba(0,0,0,0.3),
               0 4px 8px rgba(0,0,0,0.2),
               0 16px 32px rgba(0,0,0,0.25),
               0 32px 64px rgba(0,0,0,0.15),
-              inset 0 1px 0 rgba(255,255,255,0.03)
+              inset 0 1px 0 rgba(255,255,255,0.07)
             `,
           }}
         >
@@ -348,9 +383,9 @@ export default function ChatInterface() {
           <div
             className="relative flex items-center justify-between px-6 py-3.5"
             style={{
-              borderBottom: "1px solid rgba(255,255,255,0.04)",
+              borderBottom: "1px solid rgba(255,255,255,0.09)",
               background:
-                "linear-gradient(180deg, rgba(255,255,255,0.015) 0%, transparent 100%)",
+                "linear-gradient(180deg, rgba(255,255,255,0.09) 0%, transparent 100%)",
             }}
           >
             <div className="flex items-center gap-3">
@@ -379,9 +414,9 @@ export default function ChatInterface() {
                     speed={4}
                     className="font-semibold"
                   />
-                  <span className="text-white/40 font-normal">Agent</span>
+                  <span className="text-white/90 font-normal">Agent</span>
                 </h2>
-                <p className="text-[11px] text-white/25 mt-0.5 flex items-center gap-1.5 font-medium">
+                <p className="text-[11px] text-white/70 mt-0.5 flex items-center gap-1.5 font-medium">
                   <Activity className="h-3 w-3 text-emerald-500/60" />
                   Zero-Trust Accountability
                 </p>
@@ -393,10 +428,10 @@ export default function ChatInterface() {
               <div className="relative" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => setShowUserSelect(!showUserSelect)}
-                  className="flex cursor-pointer items-center gap-2 rounded-[10px] px-3.5 py-2 text-[12px] font-medium text-white/50
+                  className="flex cursor-pointer items-center gap-2 rounded-[10px] px-3.5 py-2 text-[12px] font-medium text-white
                     transition-all duration-200 hover:text-white/70"
                   style={{
-                    background: "rgba(255,255,255,0.03)",
+                    background: "rgba(255,255,255,0.07)",
                     border: "1px solid rgba(255,255,255,0.05)",
                   }}
                 >
@@ -411,7 +446,7 @@ export default function ChatInterface() {
                   </div>
                   {user}
                   <ChevronDown
-                    className={`h-3 w-3 text-white/20 transition-transform duration-200 ${showUserSelect ? "rotate-180" : ""}`}
+                    className={`h-3 w-3 text-white/60 transition-transform duration-200 ${showUserSelect ? "rotate-180" : ""}`}
                   />
                 </button>
 
@@ -428,7 +463,7 @@ export default function ChatInterface() {
                         border: "1px solid rgba(255,255,255,0.06)",
                         backdropFilter: "blur(20px)",
                         boxShadow:
-                          "0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.02)",
+                          "0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)",
                       }}
                     >
                       {users.map((u) => (
@@ -442,7 +477,7 @@ export default function ChatInterface() {
                             ${
                               u === user
                                 ? "bg-indigo-500/8 text-indigo-300"
-                                : "text-white/40 hover:bg-white/[0.03] hover:text-white/70"
+                                : "text-white/90 hover:bg-white/[0.03] hover:text-white/70"
                             }`}
                         >
                           <div
@@ -467,7 +502,7 @@ export default function ChatInterface() {
 
               <div
                 className="h-5 w-px mx-0.5"
-                style={{ background: "rgba(255,255,255,0.04)" }}
+                style={{ background: "rgba(255,255,255,0.09)" }}
               />
 
               <button
@@ -497,16 +532,18 @@ export default function ChatInterface() {
               </button>
 
               <button
-                onClick={handleReset}
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-[10px]
-                  text-white/20 transition-all duration-200 hover:text-white/50"
+                onClick={handleClear}
+                className="flex cursor-pointer items-center gap-1.5 rounded-[10px] px-3.5 py-2
+                  text-[12px] font-medium transition-all duration-200 hover:opacity-80"
                 style={{
-                  background: "rgba(255,255,255,0.02)",
-                  border: "1px solid rgba(255,255,255,0.04)",
+                  background: "rgba(239,68,68,0.05)",
+                  border: "1px solid rgba(239,68,68,0.12)",
+                  color: "rgba(252,165,165,0.8)",
                 }}
-                title="Reset chat"
+                title="Clear demo state and reset memory context"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
+                Clear
               </button>
             </div>
           </div>
@@ -545,16 +582,20 @@ export default function ChatInterface() {
                       <Sparkles className="h-4 w-4 text-amber-400/30" />
                     </motion.div>
                   </div>
-                  <h3 className="text-sm font-semibold text-white/50 mb-1.5">
-                    Start a Conversation
-                  </h3>
-                  <p className="text-[13px] text-white/20 max-w-xs leading-relaxed">
+                  <BlurText
+                    text="Start a Conversation"
+                    className="text-sm font-semibold text-white mb-1.5"
+                    delay={50}
+                    animateBy="words"
+                    direction="top"
+                  />
+                  <p className="text-[13px] text-white/60 max-w-xs leading-relaxed">
                     Send a message to analyze accountability. Seed memory first
                     for historical context.
                   </p>
                   <div className="flex items-center gap-3 mt-5">
                     <div className="h-px w-10 bg-gradient-to-r from-transparent to-white/[0.04]" />
-                    <span className="text-[9px] font-semibold tracking-[0.2em] text-white/15 uppercase">
+                    <span className="text-[9px] font-semibold tracking-[0.2em] text-white/90 uppercase">
                       Quick prompts below
                     </span>
                     <div className="h-px w-10 bg-gradient-to-l from-transparent to-white/[0.04]" />
@@ -605,10 +646,10 @@ export default function ChatInterface() {
                   {msg.role === "user" && (
                     <div className="max-w-[72%] group">
                       <div className="mb-1 flex items-center justify-end gap-2">
-                        <span className="text-[10px] text-white/15 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <span className="text-[10px] text-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           {formatTime(msg.timestamp)}
                         </span>
-                        <span className="text-[11px] font-medium text-white/30">
+                        <span className="text-[11px] font-medium text-white/80">
                           {user}
                         </span>
                         <div
@@ -660,9 +701,13 @@ export default function ChatInterface() {
                             }`}
                           />
                         </div>
-                        <span className="text-[11px] font-medium text-white/30">
-                          TeamTruth
-                        </span>
+                        <GradientText
+                          colors={["#c7d2fe", "#818cf8", "#c7d2fe"]}
+                          animationSpeed={4}
+                          className="text-[12px] font-semibold tracking-wide"
+                        >
+                          TeamTruth Agent
+                        </GradientText>
                         {msg.trustScore != null && (
                           <GlowBadge
                             variant={getTrustVariant(msg.trustScore)}
@@ -671,29 +716,30 @@ export default function ChatInterface() {
                             {msg.trustScore}%
                           </GlowBadge>
                         )}
-                        <span className="text-[10px] text-white/15 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <span className="text-[10px] text-white/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           {formatTime(msg.timestamp)}
                         </span>
                       </div>
-                      <div
+                      <SpotlightCard
                         className="rounded-[16px] rounded-tl-[6px] px-4 py-3.5 text-[13px] leading-[1.65]"
+                        spotlightColor="rgba(139,92,246,0.15)"
                         style={{
                           background: msg.content.includes("Contradiction")
                             ? "linear-gradient(135deg, rgba(248,113,113,0.05) 0%, rgba(239,68,68,0.02) 100%)"
-                            : "rgba(255,255,255,0.02)",
+                            : "rgba(255,255,255,0.09)",
                           border: msg.content.includes("Contradiction")
-                            ? "1px solid rgba(248,113,113,0.1)"
-                            : "1px solid rgba(255,255,255,0.04)",
+                            ? "1px solid rgba(248,113,113,0.15)"
+                            : "1px solid rgba(255,255,255,0.09)",
                           color: msg.content.includes("Contradiction")
                             ? "rgba(254,202,202,0.85)"
                             : "rgba(203,213,225,0.75)",
                           boxShadow: msg.content.includes("Contradiction")
                             ? "0 2px 12px rgba(239,68,68,0.03)"
-                            : "none",
+                            : "0 2px 8px rgba(0,0,0,0.2)",
                         }}
                       >
                         <div className="whitespace-pre-wrap">{msg.content}</div>
-                      </div>
+                      </SpotlightCard>
                     </div>
                   )}
                 </motion.div>
@@ -719,12 +765,12 @@ export default function ChatInterface() {
                 <div
                   className="flex items-center gap-2 rounded-[14px] px-4 py-3"
                   style={{
-                    background: "rgba(255,255,255,0.02)",
-                    border: "1px solid rgba(255,255,255,0.04)",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.09)",
                   }}
                 >
                   <TypingIndicator />
-                  <span className="text-[11px] text-white/20 font-medium">
+                  <span className="text-[11px] text-white/60 font-medium">
                     Analyzing
                   </span>
                 </div>
@@ -742,7 +788,7 @@ export default function ChatInterface() {
                   exit={{ opacity: 0, scale: 0.9 }}
                   onClick={scrollToBottom}
                   className="sticky bottom-4 left-1/2 -translate-x-1/2 z-20 flex h-8 w-8 cursor-pointer items-center
-                    justify-center rounded-full text-white/30 transition-colors hover:text-white/60"
+                    justify-center rounded-full text-white/80 transition-colors hover:text-white/60"
                   style={{
                     background: "rgba(12,12,24,0.9)",
                     border: "1px solid rgba(255,255,255,0.06)",
@@ -760,7 +806,7 @@ export default function ChatInterface() {
           <div
             className="flex gap-1.5 overflow-x-auto px-6 py-2.5"
             style={{
-              borderTop: "1px solid rgba(255,255,255,0.03)",
+              borderTop: "1px solid rgba(255,255,255,0.07)",
               scrollbarWidth: "none",
             }}
           >
@@ -769,11 +815,11 @@ export default function ChatInterface() {
                 key={qm.text}
                 onClick={() => setInput(qm.text)}
                 className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-[10px]
-                  px-3 py-2 text-[11px] font-medium text-white/25
-                  transition-all duration-200 hover:text-white/50"
+                  px-3 py-2 text-[11px] font-medium text-white/70
+                  transition-all duration-200 hover:text-white"
                 style={{
-                  background: "rgba(255,255,255,0.015)",
-                  border: "1px solid rgba(255,255,255,0.03)",
+                  background: "rgba(255,255,255,0.09)",
+                  border: "1px solid rgba(255,255,255,0.07)",
                 }}
               >
                 <span className="text-[12px]">{qm.icon}</span>
@@ -787,7 +833,7 @@ export default function ChatInterface() {
             onSubmit={handleSend}
             className="flex items-center gap-3 px-6 py-4"
             style={{
-              borderTop: "1px solid rgba(255,255,255,0.04)",
+              borderTop: "1px solid rgba(255,255,255,0.09)",
               background: inputFocused
                 ? "rgba(255,255,255,0.008)"
                 : "transparent",
@@ -809,7 +855,7 @@ export default function ChatInterface() {
                   background: "rgba(255,255,255,0.025)",
                   border: inputFocused
                     ? "1px solid rgba(99,102,241,0.2)"
-                    : "1px solid rgba(255,255,255,0.04)",
+                    : "1px solid rgba(255,255,255,0.09)",
                   boxShadow: inputFocused
                     ? "0 0 0 3px rgba(99,102,241,0.04), 0 2px 8px rgba(0,0,0,0.2)"
                     : "0 2px 4px rgba(0,0,0,0.1)",
@@ -828,39 +874,16 @@ export default function ChatInterface() {
                 )}
               </AnimatePresence>
             </div>
-            <motion.button
-              type="submit"
-              disabled={!input.trim() || isLoading}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center
-                rounded-[12px] transition-all duration-200
-                disabled:pointer-events-none disabled:opacity-20"
-              style={{
-                background:
-                  input.trim() && !isLoading
-                    ? "linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(139,92,246,0.1) 100%)"
-                    : "rgba(255,255,255,0.02)",
-                border:
-                  input.trim() && !isLoading
-                    ? "1px solid rgba(99,102,241,0.2)"
-                    : "1px solid rgba(255,255,255,0.04)",
-                color:
-                  input.trim() && !isLoading
-                    ? "rgba(165,180,252,0.8)"
-                    : "rgba(255,255,255,0.15)",
-                boxShadow:
-                  input.trim() && !isLoading
-                    ? "0 2px 8px rgba(99,102,241,0.06)"
-                    : "none",
-              }}
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
-            </motion.button>
+            
+            <div className={`transition-opacity duration-200 ${!input.trim() || isLoading ? "pointer-events-none opacity-40" : ""}`}>
+              <StarBorderButton 
+                onClick={handleSend} 
+                className="h-[46px] w-[52px] !p-0 flex items-center justify-center shrink-0 cursor-pointer !rounded-[12px]" 
+                color="rgba(99,102,241,0.5)"
+              >
+                {isLoading ? <Loader2 className="h-4 w-4 text-white animate-spin" /> : <Send className="h-4 w-4 text-white" />}
+              </StarBorderButton>
+            </div>
           </form>
         </div>
 
@@ -873,12 +896,12 @@ export default function ChatInterface() {
             background:
               "linear-gradient(180deg, rgba(12,12,24,0.95) 0%, rgba(8,8,16,0.98) 100%)",
             boxShadow: `
-              0 0 0 1px rgba(255,255,255,0.02),
+              0 0 0 1px rgba(255,255,255,0.05),
               0 1px 2px rgba(0,0,0,0.3),
               0 4px 8px rgba(0,0,0,0.2),
               0 16px 32px rgba(0,0,0,0.25),
               0 32px 64px rgba(0,0,0,0.15),
-              inset 0 1px 0 rgba(255,255,255,0.03)
+              inset 0 1px 0 rgba(255,255,255,0.07)
             `,
           }}
         >
@@ -886,9 +909,9 @@ export default function ChatInterface() {
           <div
             className="flex items-center gap-3 px-5 py-3.5"
             style={{
-              borderBottom: "1px solid rgba(255,255,255,0.04)",
+              borderBottom: "1px solid rgba(255,255,255,0.09)",
               background:
-                "linear-gradient(180deg, rgba(255,255,255,0.015) 0%, transparent 100%)",
+                "linear-gradient(180deg, rgba(255,255,255,0.09) 0%, transparent 100%)",
             }}
           >
             <div
@@ -907,7 +930,7 @@ export default function ChatInterface() {
               </h2>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <PulsingDot color="bg-emerald-400" size="h-1.5 w-1.5" />
-                <span className="text-[10px] text-white/20 font-medium">
+                <span className="text-[10px] text-white/60 font-medium">
                   Real-time monitoring
                 </span>
               </div>
@@ -931,7 +954,7 @@ export default function ChatInterface() {
                       : "rgba(248,113,113,0.06)"
               }
             >
-              <h3 className="mb-4 text-[9px] font-semibold tracking-[0.2em] text-white/20 uppercase">
+              <h3 className="mb-4 text-[9px] font-semibold tracking-[0.2em] text-white/60 uppercase">
                 {user}'s Trust Score
               </h3>
               {trustScore != null ? (
@@ -950,11 +973,11 @@ export default function ChatInterface() {
                             : "text-red-400"
                       }`}
                     />
-                    <span className="text-base font-medium text-white/15">
+                    <span className="text-base font-medium text-white/90">
                       %
                     </span>
                   </div>
-                  <p className="mt-2 text-[10px] text-white/25 font-medium">
+                  <p className="mt-2 text-[10px] text-white/70 font-medium">
                     {trustScore >= 66
                       ? "Reliable contributor"
                       : trustScore >= 33
@@ -973,13 +996,13 @@ export default function ChatInterface() {
                     }}
                     className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl"
                     style={{
-                      background: "rgba(255,255,255,0.02)",
-                      border: "1px solid rgba(255,255,255,0.04)",
+                      background: "rgba(255,255,255,0.05)",
+                      border: "1px solid rgba(255,255,255,0.09)",
                     }}
                   >
-                    <Clock className="h-5 w-5 text-white/15" />
+                    <Clock className="h-5 w-5 text-white/90" />
                   </motion.div>
-                  <p className="text-[11px] text-white/15">
+                  <p className="text-[11px] text-white/90">
                     Awaiting first interaction…
                   </p>
                 </div>
@@ -1004,7 +1027,7 @@ export default function ChatInterface() {
                     duration={1}
                     className="text-xl font-bold text-white/80"
                   />
-                  <p className="mt-1 text-[9px] font-semibold tracking-[0.15em] text-white/20 uppercase">
+                  <p className="mt-1 text-[9px] font-semibold tracking-[0.15em] text-white/60 uppercase">
                     Memories
                   </p>
                 </SpotlightCard>
@@ -1020,7 +1043,7 @@ export default function ChatInterface() {
                     duration={1}
                     className="text-xl font-bold text-white/80"
                   />
-                  <p className="mt-1 text-[9px] font-semibold tracking-[0.15em] text-white/20 uppercase">
+                  <p className="mt-1 text-[9px] font-semibold tracking-[0.15em] text-white/60 uppercase">
                     Infractions
                   </p>
                 </SpotlightCard>
@@ -1035,10 +1058,10 @@ export default function ChatInterface() {
                 className="space-y-2.5"
               >
                 <div className="flex items-center justify-between px-0.5">
-                  <h3 className="text-[9px] font-semibold tracking-[0.2em] text-white/20 uppercase">
+                  <h3 className="text-[9px] font-semibold tracking-[0.2em] text-white/60 uppercase">
                     Memory Log
                   </h3>
-                  <span className="text-[10px] text-white/15 font-medium flex items-center gap-1">
+                  <span className="text-[10px] text-white/90 font-medium flex items-center gap-1">
                     <Hash className="h-2.5 w-2.5" />
                     {memories.length}
                   </span>
@@ -1067,12 +1090,12 @@ export default function ChatInterface() {
                             ? "rgba(248,113,113,0.03)"
                             : isAnalysis
                               ? "rgba(99,102,241,0.03)"
-                              : "rgba(255,255,255,0.015)",
+                              : "rgba(255,255,255,0.09)",
                           border: isBroken
                             ? "1px solid rgba(248,113,113,0.08)"
                             : isAnalysis
                               ? "1px solid rgba(99,102,241,0.08)"
-                              : "1px solid rgba(255,255,255,0.03)",
+                              : "1px solid rgba(255,255,255,0.07)",
                           color: isBroken
                             ? "rgba(254,202,202,0.7)"
                             : isAnalysis
@@ -1086,7 +1109,7 @@ export default function ChatInterface() {
                           ) : isAnalysis ? (
                             <Bot className="h-2.5 w-2.5 text-indigo-400/50" />
                           ) : (
-                            <CheckCircle2 className="h-2.5 w-2.5 text-white/20" />
+                            <CheckCircle2 className="h-2.5 w-2.5 text-white/60" />
                           )}
                           <span className="font-semibold uppercase tracking-[0.1em] text-[8px] opacity-60">
                             {m.metadata?.type?.replace(/_/g, " ") || "record"}
