@@ -8,6 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const ScrollFloat = ({
   children,
+  text: propText,
   scrollContainerRef,
   containerClassName = '',
   textClassName = '',
@@ -16,11 +17,13 @@ const ScrollFloat = ({
   scrollStart = 'center bottom+=50%',
   scrollEnd = 'bottom bottom-=40%',
   stagger = 0.03,
+  letterDelay,
 }) => {
   const containerRef = useRef(null);
 
   const splitText = useMemo(() => {
-    const text = typeof children === 'string' ? children : '';
+    const text = propText || (typeof children === 'string' ? children : '');
+    const actualStagger = letterDelay !== undefined ? letterDelay / 1000 : stagger;
     return text.split('').map((char, index) => (
       <span className="char" key={index}>
         {char === ' ' ? '\u00A0' : char}
@@ -56,7 +59,7 @@ const ScrollFloat = ({
         yPercent: 0,
         scaleY: 1,
         scaleX: 1,
-        stagger: stagger,
+        stagger: actualStagger,
         scrollTrigger: {
           trigger: el,
           scroller,
