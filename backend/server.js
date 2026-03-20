@@ -108,28 +108,40 @@ Be concise and specific.`
     return response.choices[0].message.content;
 }
 
-// CALL 2: Structured Trust Score (Layer 1 — json_object mode)
+// CALL 2: Structured Trust Score — USING SUPPORTED SCHEMA MODEL
 async function getTrustScore(user, message, memories, analysis) {
-    const isContradiction = analysis.toLowerCase().includes('contradiction detected');
     const response = await groq.chat.completions.create({
-        model: 'llama-3.1-8b-instant',
+        // ⚡ THE FIX: exact model that supports strict json_schema
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
         temperature: 0,
-        max_tokens: 128,
-        response_format: { type: 'json_object' },
+        max_tokens: 256,
+        response_format: {
+            type: 'json_schema',
+            json_schema: {
+                name: 'trust_evaluation',
+                strict: true,
+                schema: {
+                    type: 'object',
+                    properties: {
+                        trust_score: { type: 'integer' },
+                        contradiction_found: { type: 'boolean' },
+                        contradiction_summary: { type: 'string' },
+                        severity: { type: 'string', enum: ['none', 'minor', 'major', 'critical'] }
+                    },
+                    required: ['trust_score', 'contradiction_found', 'contradiction_summary', 'severity'],
+                    additionalProperties: false
+                }
+            }
+        },
         messages: [
             {
                 role: 'system',
-                content: `You are a trust scoring engine. Output ONLY this JSON with no extra text:
-{"trust_score": <integer 0-100>, "contradiction_found": <true or false>, "severity": "<none|minor|major|critical>"}
-
-Rules:
-- If the analysis flags a contradiction, trust_score should be between 20-55. severity should be major or critical.
-- If no contradiction, trust_score should be between 85-100. severity should be none.
-Output ONLY the JSON object. No explanation.`
+                content: `You are a trust scoring engine. Given a team member's claim, memory history, and analysis, output a strict JSON trust evaluation.
+Rules: trust_score 85-100 = no contradiction, trust_score 20-55 = contradiction found. Be strict.`
             },
             {
                 role: 'user',
-                content: `Analysis result: ${analysis.slice(0, 400)}`
+                content: `Team member: ${user}\nClaim: "${message}"\nMemories: ${memories}\nAnalysis: ${analysis}\n\nScore this claim's trustworthiness.`
             }
         ]
     });
