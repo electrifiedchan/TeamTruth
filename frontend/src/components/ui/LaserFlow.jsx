@@ -395,7 +395,26 @@ export const LaserFlow = ({
       resizeRaf = requestAnimationFrame(setSizeNow);
     };
 
-    setSizeNow();
+    // On hard refresh, CSS layout may not have resolved at mount time,
+    // so mount.clientWidth/Height can be 0. We defer the initial size call
+    // using a double-rAF (waits for layout + paint) and poll until we get
+    // real dimensions. This fixes the invisible-on-hard-refresh bug.
+    let sizeRetryTimer = 0;
+    const initSize = () => {
+      const w = mount.clientWidth;
+      const h = mount.clientHeight;
+      if (w > 0 && h > 0) {
+        setSizeNow();
+      } else {
+        // Dimensions not ready yet — retry after one more frame
+        sizeRetryTimer = requestAnimationFrame(initSize);
+      }
+    };
+    // Double-rAF: first rAF lets the browser finish layout, second lets CSS paint
+    resizeRaf = requestAnimationFrame(() => {
+      resizeRaf = requestAnimationFrame(initSize);
+    });
+
     const ro = new ResizeObserver(scheduleResize);
     ro.observe(mount);
 
@@ -518,6 +537,8 @@ export const LaserFlow = ({
 
     return () => {
       cancelAnimationFrame(raf);
+      cancelAnimationFrame(resizeRaf);
+      cancelAnimationFrame(sizeRetryTimer);
       ro.disconnect();
       io.disconnect();
       document.removeEventListener('visibilitychange', onVis);
