@@ -16,7 +16,7 @@ import Prism from "./ui/Prism";
 import BlurText from "./ui/BlurText";
 import ShinyText from "./ui/ShinyText";
 
-import StarBorderButton from "./ui/StarBorderButton";
+import BorderGlow from "./ui/BorderGlow";
 import SplitText from "./ui/SplitText";
 import GradientText from "./ui/GradientText";
 import LogoLoop from "./ui/LogoLoop";
@@ -213,19 +213,32 @@ export default function LandingPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1.1, duration: 0.5 }}
-            className="relative z-20 mt-8 mb-4"
+            className="relative z-20 mt-28 mb-16 flex justify-center w-full"
           >
-            <StarBorderButton 
-              onClick={() => navigate('/chat')}
-              color="#ef4444" 
-              speed="3s" 
-              className="text-lg md:text-xl font-bold tracking-wide px-12 md:px-14 py-4 md:py-5 leading-none"
+            <button 
+              onClick={() => navigate('/app')}
+              className="bg-transparent border-none outline-none block p-0 m-0"
             >
-              <span className="relative z-10 flex items-center gap-3 whitespace-nowrap">
-                Initialize Demo
-                <ArrowRight className="h-5 w-5" />
-              </span>
-            </StarBorderButton>
+              <BorderGlow
+                edgeSensitivity={30}
+                glowColor="40 80 80"
+                backgroundColor="#060010"
+                borderRadius={32}
+                glowRadius={40}
+                glowIntensity={1}
+                coneSpread={25}
+                animated={true}
+                colors={['#c084fc', '#f472b6', '#38bdf8']}
+                className="cursor-pointer shadow-[0_0_80px_rgba(168,85,247,0.3)] w-[320px] h-[80px] md:w-[420px] md:h-[100px]"
+              >
+                  <div className="flex-1 flex items-center justify-center gap-3 w-full h-full text-xl md:text-2xl font-bold tracking-wide text-white whitespace-nowrap z-20">
+                    <span className="relative z-10 flex items-center justify-center gap-3 w-full h-full">
+                      Initialize Demo
+                      <ArrowRight className="h-6 w-6 md:h-7 md:w-7" />
+                    </span>
+                  </div>
+              </BorderGlow>
+            </button>
           </motion.div>
 
         </div>

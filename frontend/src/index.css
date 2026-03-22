@@ -267,3 +267,12 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* ── LASER FADE-IN (masks WebGL shader compile lag) ── */
+@keyframes laserFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 0.95; }
+}
+.laser-overlay {
+  animation: laserFadeIn 1.6s ease-out 0.15s both;
+}
