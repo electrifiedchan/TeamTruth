@@ -73,6 +73,7 @@ const fadeUp = {
     y: 0,
     transition: { duration: 0.6, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] },
   }),
+  exit: { opacity: 0, y: 30, transition: { duration: 0.4 } },
 };
 
 function FeatureCard({ feature: f, index: i }) {
@@ -101,7 +102,8 @@ function FeatureCard({ feature: f, index: i }) {
       variants={fadeUp}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.3 }}
+      exit="exit"
+      viewport={{ once: false, amount: 0.2, margin: "-50px" }}
       custom={i}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
@@ -280,7 +282,8 @@ export default function LandingPage() {
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.5 }}
+          exit="exit"
+          viewport={{ once: false, amount: 0.4, margin: "-50px" }}
           className="flex flex-col items-center w-full"
         >
           <p className="text-xs font-bold tracking-[0.2em] text-slate-500 uppercase mb-8">Built With</p>
