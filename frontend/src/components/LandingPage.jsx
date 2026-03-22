@@ -1,5 +1,5 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Brain,
@@ -20,6 +20,7 @@ import BorderGlow from "./ui/BorderGlow";
 import SplitText from "./ui/SplitText";
 import GradientText from "./ui/GradientText";
 import LogoLoop from "./ui/LogoLoop";
+import { CanvasRevealEffect } from "./ui/CanvasRevealEffect";
 import { SiReact, SiNodedotjs, SiExpress, SiTailwindcss, SiFramer } from "react-icons/si";
 
 const features = [
@@ -28,24 +29,28 @@ const features = [
     title: "Persistent Memory",
     desc: "Every promise, every claim — stored and indexed via Vectorize Hindsight. Nothing is forgotten.",
     color: "#8b5cf6",
+    canvasColors: [[139, 92, 246]],
   },
   {
     icon: AlertTriangle,
     title: "Contradiction Engine",
     desc: 'Groq-powered LLM cross-references new statements against history. Say "I finished it" when you didn\'t — we\'ll know.',
     color: "#f87171",
+    canvasColors: [[248, 113, 113], [232, 80, 80]],
   },
   {
     icon: GitGraph,
     title: "Trust Scoring",
     desc: "Real-time reliability scores calculated from delivery history. Below 50%? Task reassignment recommended.",
     color: "#34d399",
+    canvasColors: [[52, 211, 153]],
   },
   {
     icon: Eye,
     title: "Zero-Trust by Default",
     desc: "No one gets the benefit of the doubt. Every claim requires evidence. Accountability is the feature.",
     color: "#06b6d4",
+    canvasColors: [[6, 182, 212], [99, 102, 241]],
   },
 ];
 
@@ -109,31 +114,47 @@ function FeatureCard({ feature: f, index: i }) {
         transition: hovered ? "transform 0.1s ease-out" : "transform 0.4s ease-out",
       }}
     >
-      <div
-        className="pointer-events-none absolute inset-0 transition-opacity duration-500"
-        style={{
-          opacity: hovered ? 1 : 0,
-          background: `radial-gradient(500px circle at ${glowPos.x}% ${glowPos.y}%, ${f.color}18, transparent 60%)`,
-        }}
-      />
+      {/* Canvas reveal layer — only mounted on hover to save GPU */}
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="absolute inset-0"
+            style={{ borderRadius: "2.5rem", overflow: "hidden" }}
+          >
+            <CanvasRevealEffect
+              animationSpeed={5}
+              colors={f.canvasColors}
+              dotSize={2}
+              showGradient={true}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Top edge accent line */}
       <div
         className="absolute top-0 left-6 right-6 h-px transition-opacity duration-300"
         style={{
-          background: `linear-gradient(90deg, transparent, ${f.color}50, transparent)`,
+          background: `linear-gradient(90deg, transparent, ${f.color}70, transparent)`,
           opacity: hovered ? 1 : 0.4,
         }}
       />
 
+      {/* Content */}
       <div className="relative z-10 flex flex-col items-center text-center gap-6">
         <div
           className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl transition-transform duration-300 group-hover:scale-110"
-          style={{ background: `${f.color}12`, border: `1px solid ${f.color}25` }}
+          style={{ background: `${f.color}18`, border: `1px solid ${f.color}40` }}
         >
           <f.icon className="h-10 w-10" style={{ color: f.color }} />
         </div>
         <div className="min-w-0">
-          <h3 className="mb-4 text-2xl font-bold text-white tracking-wide">{f.title}</h3>
-          <p className="text-lg leading-relaxed text-slate-400">{f.desc}</p>
+          <h3 className="mb-4 text-2xl font-bold text-white tracking-wide group-hover:text-white transition-colors">{f.title}</h3>
+          <p className="text-lg leading-relaxed text-slate-300">{f.desc}</p>
         </div>
       </div>
     </motion.div>
