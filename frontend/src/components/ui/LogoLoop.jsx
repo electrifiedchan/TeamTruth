@@ -42,7 +42,7 @@ export default function LogoLoop({
       {/* Unified track for continuous looping */}
       <motion.div
         className="flex shrink-0 items-center whitespace-nowrap"
-        style={{ gap: gap, paddingRight: gap }}
+        style={{ gap: `${gap}px`, paddingRight: `${gap}px`, minWidth: "max-content" }}
         animate={{
           x: direction === "left" ? ["0%", "-50%"] : ["-50%", "0%"]
         }}

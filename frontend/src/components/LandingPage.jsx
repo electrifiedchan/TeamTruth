@@ -278,14 +278,7 @@ export default function LandingPage() {
 
       {/* ════════ SECTION 3 — TECH STACK ════════ */}
       <section className="relative z-10 flex flex-col items-center pb-28 pt-10 bg-[#030008] border-t border-white/5 overflow-hidden w-full">
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          exit="exit"
-          viewport={{ once: false, amount: 0.4, margin: "-50px" }}
-          className="flex flex-col items-center w-full"
-        >
+        <div className="flex flex-col items-center w-full">
           <p className="text-xs font-bold tracking-[0.2em] text-slate-500 uppercase mb-8">Built With</p>
           <LogoLoop
              logos={techLogos}
@@ -298,7 +291,7 @@ export default function LandingPage() {
              fadeOutColor="#030008"
              ariaLabel="Technology stack"
            />
-        </motion.div>
+        </div>
       </section>
 
     </div>
