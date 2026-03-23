@@ -1,91 +1,239 @@
 <div align="center">
 
-# TeamTruth
+<br>
 
-### The Zero-Trust Accountability Engine for Engineering Teams
+<img src="https://img.shields.io/badge/%E2%96%B2-TEAMTRUTH-black?style=for-the-badge&labelColor=000000&color=111111" height="40"/>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Node.js](https://img.shields.io/badge/Node.js-20%2B-green.svg)](https://nodejs.org/)
-[![Groq](https://img.shields.io/badge/AI-Groq%20API-orange.svg)](https://groq.com/)
-[![Status](https://img.shields.io/badge/Status-MVP-blue.svg)]()
+<br><br>
 
-> *"Built for radical transparency, because no one gets the benefit of the doubt."*
+# `T E A M T R U T H`
+
+### ⬡ The Zero-Trust Accountability Engine for Engineering Teams ⬡
+
+<br>
+
+<p>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-000000?style=for-the-badge&logo=opensourceinitiative&logoColor=white" /></a>
+  <img src="https://img.shields.io/badge/NODE.JS-20+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
+  <img src="https://img.shields.io/badge/GROQ-AI_INFERENCE-F55036?style=for-the-badge&logo=probot&logoColor=white" />
+  <img src="https://img.shields.io/badge/STATUS-MVP-7C3AED?style=for-the-badge" />
+</p>
+
+<br>
+
+```
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║   "Built for radical transparency,                               ║
+║    because no one gets the benefit of the doubt."                ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+```
+
+<br>
+
+<p align="center">
+  <a href="#-the-problem">Problem</a> •
+  <a href="#-what-it-does">Solution</a> •
+  <a href="#-the-core-loop">Architecture</a> •
+  <a href="#-tech-stack">Stack</a> •
+  <a href="#-getting-started">Setup</a> •
+  <a href="#-demo">Demo</a> •
+  <a href="#-roadmap">Roadmap</a>
+</p>
 
 </div>
 
----
-
-## The Problem
-
-Group projects silently collapse before anyone admits it. Tasks get misreported, teammates ghost before deadlines, and existing tools like Jira or Notion trust humans to self-report progress honestly. **They never do.**
-
-TeamTruth doesn't ask your team to be honest. It **verifies** them.
+<br>
 
 ---
 
-## What It Does
+<br>
 
-TeamTruth is an embedded AI teammate that cross-references every chat claim against a persistent, AI-indexed memory bank. When a developer says *"I finished the database schema,"* TeamTruth doesn't applaud — it checks. If that person promised the same thing two weeks ago and nothing was delivered, it **flags the broken promise publicly and deducts their Trust Score in real time.**
+## 🔴 The Problem
 
----
+<table>
+<tr>
+<td>
 
-## How It Works: The Core Loop
+Group projects **silently collapse** before anyone admits it.
 
-| Step | Name | Description |
-|------|------|-------------|
-| 1 | **RETAIN** | Every promise, claim, and deliverable is logged into a persistently indexed memory bank via the **Vectorize Hindsight Cloud API**. |
-| 2 | **RECALL** | When a new update is posted, the agent queries Hindsight for historical claims from that specific user relevant to the same feature or task. |
-| 3 | **REFLECT** | A two-stage AI pipeline cross-references history against the new claim, computes a contradiction score, and updates the live **Trust Gauge**. |
+Tasks get misreported. Teammates ghost before deadlines. Existing tools like Jira or Notion trust humans to self-report progress honestly.
 
----
+**They never do.**
 
-## Architecture: Two-Call AI Pipeline
+TeamTruth doesn't *ask* your team to be honest — it **verifies** them.
 
-TeamTruth's backend uses a deliberate **Two-Call Architecture** that separates *reasoning* from *data extraction* — a critical design decision for deterministic scoring.
+</td>
+</tr>
+</table>
 
-> **Uses a Two-Call Architecture separating reasoning (`llama-3.3-70b-versatile`) from strict data extraction (`llama-4-scout-17b` with `json_schema`) to guarantee 100% deterministic Trust Scoring without hallucinations.**
-
-**Why this matters:**
-
-- **Call 1 — Reasoning (`llama-3.3-70b-versatile`):** The large model is given full context — the new claim, the historical memory, and the team roster — and reasons freely in natural language about whether a contradiction exists.
-- **Call 2 — Extraction (`llama-4-scout-17b` + `json_schema`):** A smaller, faster model receives only the reasoning output and is constrained by a strict JSON schema enforced at the token level. It outputs a perfectly structured `{ trust_delta, flag, reason }` object. **Every single time. No exceptions.**
-
-This eliminates the #1 failure mode of AI scoring systems: unpredictable, hallucinated JSON that breaks the application. The Trust Score is mathematically guaranteed to be consistent.
+<br>
 
 ---
 
-## Tech Stack
+<br>
+
+## ⚡ What It Does
+
+<br>
+
+<div align="center">
+
+> TeamTruth is an **embedded AI teammate** that cross-references every chat claim
+> against a persistent, AI-indexed memory bank.
+
+</div>
+
+<br>
+
+When a developer says *"I finished the database schema,"* TeamTruth doesn't applaud — **it checks.**
+
+If that person promised the same thing two weeks ago and nothing was delivered, it:
+
+```diff
+- ✖ FLAGS the broken promise publicly
+- ✖ DEDUCTS their Trust Score in real time
+- ✖ SURFACES the original unfulfilled commitment with full context
+```
+
+> No more hiding. No more amnesia. Every promise has a receipt.
+
+<br>
+
+---
+
+<br>
+
+## 🔁 The Core Loop
+
+```
+┌─────────────────────────────────────────────────────┐
+│                                                     │
+│   ① RETAIN ──→ ② RECALL ──→ ③ REFLECT              │
+│       │            │              │                 │
+│       ▼            ▼              ▼                 │
+│    Log to       Query by       Cross-ref &          │
+│    Memory       User+Task      Score Trust          │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+| Step | Phase | Description |
+|------|-------|-------------|
+| 01 | 🟢 **RETAIN** | Every promise, claim, and deliverable is logged into a persistently indexed memory bank via the Vectorize Hindsight Cloud API. Nothing is forgotten. Ever. |
+| 02 | 🟡 **RECALL** | When a new update is posted, the agent queries Hindsight for historical claims from that specific user relevant to the same feature or task. |
+| 03 | 🔴 **REFLECT** | A two-stage AI pipeline cross-references history against the new claim, computes a contradiction score, and updates the live Trust Gauge. |
+
+<br>
+
+---
+
+<br>
+
+## 🧠 Architecture — Two-Call AI Pipeline
+
+**Why two calls instead of one?**
+
+Because one model can't reason freely *and* produce guaranteed-valid JSON. Combining both in a single prompt is the #1 cause of hallucinated scores and broken parsers in AI systems. We split the problem in half.
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+│   INCOMING CLAIM                                                     │
+│        │                                                             │
+│        ▼                                                             │
+│   ┌─────────────────────────────────────────────┐                   │
+│   │  CALL 1 — REASONING                         │                   │
+│   │  Model: llama-3.3-70b-versatile             │                   │
+│   │                                             │                   │
+│   │  • Receives full context                    │                   │
+│   │  • New claim + historical memory + roster   │                   │
+│   │  • Reasons freely in natural language       │                   │
+│   │  • Identifies contradictions & patterns     │                   │
+│   └──────────────────┬──────────────────────────┘                   │
+│                      │                                               │
+│                      ▼                                               │
+│   ┌─────────────────────────────────────────────┐                   │
+│   │  CALL 2 — EXTRACTION                        │                   │
+│   │  Model: llama-4-scout-17b + json_schema     │                   │
+│   │                                             │                   │
+│   │  • Receives ONLY the reasoning output       │                   │
+│   │  • Strict JSON schema at token level        │                   │
+│   │  • Outputs: { trust_delta, flag, reason }   │                   │
+│   │  • 100% deterministic. No exceptions.       │                   │
+│   └──────────────────┬──────────────────────────┘                   │
+│                      │                                               │
+│                      ▼                                               │
+│              TRUST SCORE UPDATED                                     │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+<details>
+<summary>💡 Why This Matters (click to expand)</summary>
+
+<br>
+
+This eliminates the #1 failure mode of AI scoring systems: **unpredictable, hallucinated JSON** that breaks the application at runtime.
+
+- **Call 1** (`llama-3.3-70b-versatile`) — the large model has full creative freedom to reason across complex, messy, real-world team communication. No schema constraints.
+- **Call 2** (`llama-4-scout-17b` + `json_schema`) — a smaller, faster model receives only the clean reasoning summary and is constrained by a strict JSON schema enforced at the **token level** by Groq. It is **structurally impossible** for it to output malformed JSON.
+
+The Trust Score is mathematically guaranteed to be consistent, parseable, and hallucination-free — every single time.
+
+</details>
+
+<br>
+
+---
+
+<br>
+
+## 🛠 Tech Stack
 
 | Layer | Technology |
-|---|---|
-| **Frontend** | React 19, Vite 6, Tailwind CSS v4, Framer Motion |
-| **Backend** | Node.js, Express.js |
-| **AI Inference** | Groq API (`llama-3.3-70b-versatile`, `llama-4-scout-17b`) |
-| **Memory / Vector Store** | Vectorize Hindsight Cloud API |
-| **Constraint** | 100% JavaScript / Node.js — Zero Python |
+|-------|-----------|
+| 🎨 **Frontend** | React 19 · Vite 6 · Tailwind CSS v4 · Framer Motion |
+| ⚙️ **Backend** | Node.js · Express.js |
+| 🧠 **AI Inference** | Groq API — `llama-3.3-70b-versatile` + `llama-4-scout-17b` |
+| 💾 **Memory** | Vectorize Hindsight Cloud API — persistent vector store |
+| 🚫 **Constraint** | 100% JavaScript / Node.js — Zero Python |
+
+<br>
 
 ---
 
-## Getting Started
+<br>
 
-### Prerequisites
+## 🚀 Getting Started
 
-- Node.js 20+
-- A [Groq API Key](https://console.groq.com/)
-- A `HINDSIGHT_API_KEY` and `BANK_ID` from the [Vectorize Hindsight UI](https://vectorize.io/)
+**Prerequisites**
 
-### 1. Backend
+```
+✦  Node.js 20+
+✦  Groq API Key           → https://console.groq.com
+✦  Hindsight API Key      → https://vectorize.io
+✦  Hindsight Bank ID      → Created in the Vectorize dashboard
+```
+
+### 01 — Backend
 
 ```bash
 cd backend
 npm install
 ```
 
-Create a `.env` file (see `.env.example`):
+Create `.env` from the example:
 
 ```env
+# ── Server ──────────────────────────────────
 PORT=5000
+
+# ── AI Inference ────────────────────────────
 GROQ_API_KEY=gsk_...your_key_here...
+
+# ── Memory / Vector Store ───────────────────
 HINDSIGHT_API_KEY=hsk_...your_key_here...
 BANK_ID=teamtruth-bank
 ```
@@ -94,7 +242,7 @@ BANK_ID=teamtruth-bank
 npm start
 ```
 
-### 2. Frontend
+### 02 — Frontend
 
 ```bash
 cd frontend
@@ -102,46 +250,107 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) and you're live.
+
+<br>
 
 ---
 
-## Demo Script
+<br>
 
-1. **Boot up** both frontend and backend servers.
-2. Click **"Seed Memory"** (top right) to pre-load Hindsight with historically unfulfilled tasks for the user *"Bob"*.
-3. In the chat, send: **`"I finished the database schema."`**
-4. Watch TeamTruth instantly surface the contradictory historical logs, flag the broken promise, and drop Bob's Trust Score in real time.
+## 🎬 Demo
 
----
+| # | Step |
+|---|------|
+| ① | Boot up both frontend and backend servers. |
+| ② | Click **"Seed Memory"** (top right) to pre-load Hindsight with historically unfulfilled tasks for the user *"Bob"*. |
+| ③ | In the chat, send: **`"I finished the database schema."`** |
+| ④ | Watch TeamTruth instantly surface the contradictory logs, flag the broken promise, and drop Bob's Trust Score in real time. |
 
-## Current Release: MVP Chat Accountability Protocol
-
-This release implements the full core accountability loop:
-
-- ✅ Persistent AI memory via Vectorize Hindsight (promises never forgotten)
-- ✅ Real-time Trust Score with live visual gauge
-- ✅ Two-Call AI Pipeline for deterministic, hallucination-free scoring
-- ✅ Team dashboard with per-member reliability tracking
-- ✅ Public contradiction flagging in the shared chat feed
+<br>
 
 ---
 
-## Roadmap: Immediate V2
+<br>
 
-The next evolution removes the manual chat input requirement entirely by wiring TeamTruth directly into the GitHub event stream.
+## ✅ Current Release — MVP
 
-**GitHub Webhook Integration**
+```
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│   CHAT ACCOUNTABILITY PROTOCOL v1                          │
+│                                                            │
+│   [✓] Persistent AI memory via Vectorize Hindsight         │
+│   [✓] Real-time Trust Score with live visual gauge         │
+│   [✓] Two-Call AI Pipeline — deterministic scoring         │
+│   [✓] Team dashboard with per-member reliability           │
+│   [✓] Public contradiction flagging in shared feed         │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+```
 
-- Register a webhook on any GitHub repository pointing to the TeamTruth backend.
-- Every `push`, `pull_request`, and `issue` event is automatically ingested as a verified data point.
-- The system will autonomously cross-reference commit messages against open promises — **no human input required.**
-- Trust Scores will update passively as code is actually written, tested, and merged.
-
-This transforms TeamTruth from a *chat tool* into a **passive, always-on accountability layer** embedded directly in the development workflow.
+<br>
 
 ---
 
-## License
+<br>
+
+## 🗺 Roadmap
+
+```
+╔═══════════════════════════════════════════════════════════╗
+║                     V2  —  NEXT UP                        ║
+╠═══════════════════════════════════════════════════════════╣
+║                                                           ║
+║   GITHUB WEBHOOK INTEGRATION                              ║
+║                                                           ║
+║   • Register webhook → TeamTruth backend                  ║
+║   • Auto-ingest push, PR, and issue events                ║
+║   • Cross-ref commits against open promises               ║
+║   • Passive Trust Score updates from real code            ║
+║   • Zero human input required                             ║
+║                                                           ║
+╚═══════════════════════════════════════════════════════════╝
+```
+
+V2 transforms TeamTruth from a chat tool into a **passive, always-on accountability layer** embedded directly in the development workflow.
+
+<br>
+
+| Phase | Milestone | Status |
+|-------|-----------|--------|
+| V1 | Chat Accountability Protocol | ✅ Shipped |
+| V2 | GitHub Webhook Integration | 🔧 In Progress |
+| V3 | Slack / Discord Bot Deployment | 📋 Planned |
+| V4 | Multi-repo Org-wide Trust Dashboards | 📋 Planned |
+
+<br>
+
+---
+
+<br>
+
+## 📄 License
 
 Distributed under the MIT License. See [`LICENSE`](./LICENSE) for details.
+
+<br>
+
+---
+
+<br>
+
+<div align="center">
+
+```
+████████╗███████╗ █████╗ ███╗   ███╗████████╗██████╗ ██╗   ██╗████████╗██╗  ██╗
+╚══██╔══╝██╔════╝██╔══██╗████╗ ████║╚══██╔══╝██╔══██╗██║   ██║╚══██╔══╝██║  ██║
+   ██║   █████╗  ███████║██╔████╔██║   ██║   ██████╔╝██║   ██║   ██║   ███████║
+   ██║   ██╔══╝  ██╔══██║██║╚██╔╝██║   ██║   ██╔══██╗██║   ██║   ██║   ██╔══██║
+   ██║   ███████╗██║  ██║██║ ╚═╝ ██║   ██║   ██║  ██║╚██████╔╝   ██║   ██║  ██║
+   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝
+```
+
+*Every promise has a receipt. Every claim has a checksum. Every teammate has a score.*
+
+</div>
