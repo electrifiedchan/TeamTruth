@@ -464,7 +464,7 @@ export default function ChatInterface() {
           >
             {/* ── HEADER ── */}
             <header
-              className="relative z-20 flex items-center justify-between gap-4 px-5 py-3.5"
+              className="relative z-20 flex items-center justify-between gap-2 px-3 py-3"
               style={{
                 borderBottom: `1px solid ${SURFACE.border}`,
                 background:
@@ -509,12 +509,12 @@ export default function ChatInterface() {
               </div>
 
               {/* Right: Controls */}
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center gap-1 shrink-0">
                 {/* User selector */}
                 <div className="relative" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => setShowUserSelect(!showUserSelect)}
-                    className="flex cursor-pointer items-center gap-2 px-3.5 py-2 text-xs font-semibold
+                    className="flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold
                     text-white/90 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
                     style={{
                       borderRadius: R.btn,
@@ -523,16 +523,7 @@ export default function ChatInterface() {
                       boxShadow: "0 0 12px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.07)",
                     }}
                   >
-                    <div
-                      className="flex h-5 w-5 items-center justify-center rounded-full shrink-0"
-                      style={{
-                        background: "linear-gradient(135deg, rgba(129,140,248,0.3) 0%, rgba(99,102,241,0.18) 100%)",
-                        border: "1px solid rgba(129,140,248,0.32)",
-                        boxShadow: "0 0 6px rgba(129,140,248,0.2)",
-                      }}
-                    >
-                      <User className="h-2.5 w-2.5 text-indigo-200" />
-                    </div>
+                    <User className="h-3 w-3 text-indigo-300 shrink-0" />
                     <span className="text-indigo-100/90">{user}</span>
                     <ChevronDown
                       className={`h-3 w-3 text-indigo-300/60 transition-transform duration-200 ${showUserSelect ? "rotate-180" : ""
@@ -590,7 +581,7 @@ export default function ChatInterface() {
                 </div>
 
                 <div
-                  className="h-4 w-px mx-0.5"
+                  className="h-4 w-px"
                   style={{ background: "rgba(255,255,255,0.07)" }}
                 />
 
@@ -598,7 +589,7 @@ export default function ChatInterface() {
                 <button
                   onClick={handleSeed}
                   disabled={isSeeded || isLoading}
-                  className="flex cursor-pointer items-center gap-1.5 px-3.5 py-2
+                  className="flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5
                   text-xs font-semibold transition-all duration-200
                   hover:scale-[1.04] active:scale-[0.96]
                   disabled:pointer-events-none disabled:opacity-30"
@@ -629,7 +620,7 @@ export default function ChatInterface() {
                 {/* Clear */}
                 <button
                   onClick={handleClear}
-                  className="flex cursor-pointer items-center gap-1.5 px-3.5 py-2
+                  className="flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5
                     text-xs font-semibold transition-all duration-200
                     hover:scale-[1.04] active:scale-[0.96]"
                   style={{
