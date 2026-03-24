@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import PillNav from "./components/ui/PillNav";
 import LandingPage from "./components/LandingPage";
 import ChatInterface from "./components/ChatInterface";
+import ClickSpark from "./components/ui/ClickSpark";
 
 const NAV_ITEMS = [
   { label: "Home", href: "/" },
@@ -31,8 +32,16 @@ function AppShell() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AppShell />
-    </BrowserRouter>
+    <ClickSpark
+      sparkColor='#fff'
+      sparkSize={10}
+      sparkRadius={15}
+      sparkCount={8}
+      duration={400}
+    >
+      <BrowserRouter>
+        <AppShell />
+      </BrowserRouter>
+    </ClickSpark>
   );
 }

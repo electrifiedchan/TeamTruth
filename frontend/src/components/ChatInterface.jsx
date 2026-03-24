@@ -30,6 +30,7 @@ import ShinyText from "./ui/ShinyText";
 import LaserFlow from "./ui/LaserFlow";
 import BlurText from "./ui/BlurText";
 import GradientText from "./ui/GradientText";
+import GooeyNav from "./ui/GooeyNav";
 import { estimateTrustFromText } from "../utils/trustFallback";
 
 /* ═══════════════════════════════════════════
@@ -352,6 +353,48 @@ export default function ChatInterface() {
       m.metadata?.type === "broken_promise" || m.metadata?.delivered === false
   ).length;
 
+  const gooeyItems = [
+    {
+      label: "User",
+      content: (
+        <>
+          <User className="h-3.5 w-3.5 shrink-0" />
+          <span>{user}</span>
+          <ChevronDown
+            className={`h-3 w-3 transition-transform duration-200 shrink-0 ${
+              showUserSelect ? "rotate-180" : ""
+            }`}
+          />
+        </>
+      ),
+      onClick: (e) => {
+        e.stopPropagation();
+        setShowUserSelect(!showUserSelect);
+      }
+    },
+    {
+      label: "Seed",
+      content: (
+        <>
+          {isSeeded ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0" /> : <Database className="h-3.5 w-3.5 shrink-0" />}
+          {isSeeded ? "Loaded" : "Seed"}
+        </>
+      ),
+      disabled: isSeeded || isLoading,
+      onClick: handleSeed
+    },
+    {
+      label: "Reset",
+      content: (
+        <>
+          <RotateCcw className="h-3.5 w-3.5 shrink-0" />
+          Reset
+        </>
+      ),
+      onClick: handleClear
+    }
+  ];
+
   /* ═══════════════════════════════════════════
      RENDER
      ═══════════════════════════════════════════ */
@@ -464,11 +507,14 @@ export default function ChatInterface() {
           >
             {/* ── HEADER ── */}
             <header
-              className="relative z-20 flex items-center justify-between gap-2 px-3 py-3"
+              className="relative z-20"
               style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "8px 16px",
                 borderBottom: `1px solid ${SURFACE.border}`,
-                background:
-                  "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)",
+                background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%)",
               }}
             >
               {/* Left: Logo + title */}
@@ -509,132 +555,63 @@ export default function ChatInterface() {
               </div>
 
               {/* Right: Controls */}
-              <div className="flex items-center gap-1 shrink-0">
-                {/* User selector */}
-                <div className="relative" onClick={(e) => e.stopPropagation()}>
-                  <button
-                    onClick={() => setShowUserSelect(!showUserSelect)}
-                    className="flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold
-                    text-white/90 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
-                    style={{
-                      borderRadius: R.btn,
-                      background: "linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(139,92,246,0.10) 100%)",
-                      border: "1px solid rgba(129,140,248,0.26)",
-                      boxShadow: "0 0 12px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.07)",
-                    }}
-                  >
-                    <User className="h-3 w-3 text-indigo-300 shrink-0" />
-                    <span className="text-indigo-100/90">{user}</span>
-                    <ChevronDown
-                      className={`h-3 w-3 text-indigo-300/60 transition-transform duration-200 ${showUserSelect ? "rotate-180" : ""
-                        }`}
-                    />
-                  </button>
-
-                  <AnimatePresence>
-                    {showUserSelect && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -4, scale: 0.97 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -4, scale: 0.97 }}
-                        transition={{ duration: 0.12 }}
-                        className="absolute right-0 top-full z-[60] mt-1.5 min-w-[160px] overflow-hidden py-1"
-                        style={{
-                          borderRadius: R.card,
-                          background: "rgba(14,14,28,0.98)",
-                          border: `1px solid ${SURFACE.border}`,
-                          backdropFilter: "blur(20px)",
-                          boxShadow: "0 20px 48px rgba(0,0,0,0.6)",
-                        }}
-                      >
-                        {users.map((u) => (
-                          <button
-                            key={u}
-                            onClick={() => {
-                              setUser(u);
-                              setShowUserSelect(false);
-                            }}
-                            className={`flex w-full cursor-pointer items-center gap-2.5 px-3.5 py-2.5
-                            text-xs font-medium transition-colors duration-100
-                            ${u === user
-                                ? "bg-indigo-500/8 text-indigo-300"
-                                : "text-white/70 hover:bg-white/[0.04] hover:text-white/90"
-                              }`}
-                          >
-                            <div
-                              className={`flex h-5 w-5 items-center justify-center rounded-full shrink-0 ${u === user
-                                ? "bg-indigo-500/15 border border-indigo-500/25"
-                                : "bg-white/[0.04] border border-white/[0.06]"
-                                }`}
-                            >
-                              <User className="h-2.5 w-2.5" />
-                            </div>
-                            {u}
-                            {u === user && (
-                              <CheckCircle2 className="ml-auto h-3 w-3 text-indigo-400/60" />
-                            )}
-                          </button>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                <div
-                  className="h-4 w-px"
-                  style={{ background: "rgba(255,255,255,0.07)" }}
+              <div style={{ position: "relative" }}>
+                <GooeyNav 
+                  items={gooeyItems} 
+                  initialActiveIndex={-1} 
+                  particleCount={15} 
+                  colors={["white", "indigo-400"]}
                 />
 
-                {/* Seed */}
-                <button
-                  onClick={handleSeed}
-                  disabled={isSeeded || isLoading}
-                  className="flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5
-                  text-xs font-semibold transition-all duration-200
-                  hover:scale-[1.04] active:scale-[0.96]
-                  disabled:pointer-events-none disabled:opacity-30"
-                  style={{
-                    borderRadius: R.btn,
-                    background: isSeeded
-                      ? "linear-gradient(135deg, rgba(52,211,153,0.18) 0%, rgba(16,185,129,0.09) 100%)"
-                      : "linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(139,92,246,0.10) 100%)",
-                    border: isSeeded
-                      ? "1px solid rgba(52,211,153,0.30)"
-                      : "1px solid rgba(129,140,248,0.24)",
-                    color: isSeeded
-                      ? "rgba(110,231,183,0.95)"
-                      : "rgba(199,210,254,0.92)",
-                    boxShadow: isSeeded
-                      ? "0 0 14px rgba(52,211,153,0.2), inset 0 1px 0 rgba(255,255,255,0.08)"
-                      : "0 0 14px rgba(99,102,241,0.18), inset 0 1px 0 rgba(255,255,255,0.07)",
-                  }}
-                >
-                  {isSeeded ? (
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                  ) : (
-                    <Database className="h-3.5 w-3.5" />
+                <AnimatePresence>
+                  {showUserSelect && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -4, scale: 0.97 }}
+                      transition={{ duration: 0.12 }}
+                      className="absolute right-0 top-full z-[60] mt-1.5 min-w-[160px] overflow-hidden py-1"
+                      style={{
+                        borderRadius: R.card,
+                        background: "rgba(14,14,28,0.98)",
+                        border: `1px solid ${SURFACE.border}`,
+                        backdropFilter: "blur(20px)",
+                        boxShadow: "0 20px 48px rgba(0,0,0,0.6)",
+                      }}
+                    >
+                      {users.map((u) => (
+                        <button
+                          key={u}
+                          onClick={() => {
+                            setUser(u);
+                            setShowUserSelect(false);
+                          }}
+                          className={`flex w-full cursor-pointer items-center gap-2.5 px-3.5 py-2.5
+                          text-xs font-medium transition-colors duration-100
+                          ${
+                            u === user
+                              ? "bg-indigo-500/8 text-indigo-300"
+                              : "text-white/70 hover:bg-white/[0.04] hover:text-white/90"
+                          }`}
+                        >
+                          <div
+                            className={`flex h-5 w-5 items-center justify-center rounded-full shrink-0 ${
+                              u === user
+                                ? "bg-indigo-500/15 border border-indigo-500/25"
+                                : "bg-white/[0.04] border border-white/[0.06]"
+                            }`}
+                          >
+                            <User className="h-2.5 w-2.5" />
+                          </div>
+                          {u}
+                          {u === user && (
+                            <CheckCircle2 className="ml-auto h-3 w-3 text-indigo-400/60" />
+                          )}
+                        </button>
+                      ))}
+                    </motion.div>
                   )}
-                  {isSeeded ? "Loaded" : "Seed"}
-                </button>
-
-                {/* Clear */}
-                <button
-                  onClick={handleClear}
-                  className="flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5
-                    text-xs font-semibold transition-all duration-200
-                    hover:scale-[1.04] active:scale-[0.96]"
-                  style={{
-                    borderRadius: R.btn,
-                    background: "linear-gradient(135deg, rgba(239,68,68,0.14) 0%, rgba(220,38,38,0.07) 100%)",
-                    border: "1px solid rgba(248,113,113,0.26)",
-                    color: "rgba(252,165,165,0.92)",
-                    boxShadow: "0 0 12px rgba(239,68,68,0.14), inset 0 1px 0 rgba(255,255,255,0.05)",
-                  }}
-                  title="Reset demo — clears all memory and messages"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  Reset
-                </button>
+                </AnimatePresence>
               </div>
             </header>
 
