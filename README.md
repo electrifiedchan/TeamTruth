@@ -80,8 +80,7 @@ TeamTruth doesn't *ask* your team to be honest — it **verifies** them.
 
 <div align="center">
 
-> TeamTruth is an **embedded AI teammate** that cross-references every chat claim
-> against a persistent, AI-indexed memory bank.
+> MVP implements the core AI Contradiction Engine and Vectorize Hindsight memory graph. V2 Roadmap: Direct GitHub webhook integration for automated commit-history cross-referencing.
 
 </div>
 

@@ -130,7 +130,12 @@ async function getTrustScore(user, message, memories, analysis) {
                 schema: {
                     type: 'object',
                     properties: {
-                        trust_score: { type: 'integer' },
+                        trust_score: { 
+                            type: "integer",
+                            description: "A score from 0 to 100 representing the user's reliability.",
+                            minimum: 0,
+                            maximum: 100
+                        },
                         contradiction_found: { type: 'boolean' },
                         contradiction_summary: { type: 'string' },
                         severity: { type: 'string', enum: ['none', 'minor', 'major', 'critical'] }
