@@ -142,6 +142,122 @@ function DeltaBadge({ delta }) {
   );
 }
 
+function ContradictionCard({ analysis, trustScore, trustDelta, currentClaim, historicalNode, githubEvidence, penaltyCalculation }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="relative"
+      style={{
+        borderRadius: R.card,
+        background: "rgba(248,113,113,0.08)",
+        border: "1px solid rgba(248,113,113,0.25)",
+        color: "rgba(254,202,202,0.9)",
+        backdropFilter: "blur(20px)",
+        boxShadow: "0 8px 32px rgba(248,113,113,0.15)",
+      }}
+    >
+      {/* Decorative header */}
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-red-500/15">
+        <AlertTriangle className="h-3.5 w-3.5 text-red-400/80" />
+        <span className="text-xs font-semibold tracking-wide text-red-300/90">
+          CONTRADICTION DETECTED
+        </span>
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent to-red-500/20" />
+        <span className="text-[10px] text-red-400/60 font-mono">
+          Trust Score: {trustScore}%
+        </span>
+      </div>
+
+      {/* Content grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4">
+        {/* Current Claim */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500/10 border border-red-500/20">
+              <User className="h-2.5 w-2.5 text-red-400/60" />
+            </div>
+            <span className="text-[10px] font-bold text-red-300/80 tracking-wider">CURRENT CLAIM</span>
+          </div>
+          <div className="px-3 py-2 text-[12px] leading-relaxed bg-red-500/5 border border-red-500/10 rounded-lg">
+            "{currentClaim}"
+          </div>
+        </div>
+
+        {/* Historical Node */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-500/10 border border-indigo-500/20">
+              <Database className="h-2.5 w-2.5 text-indigo-400/60" />
+            </div>
+            <span className="text-[10px] font-bold text-indigo-300/80 tracking-wider">HISTORICAL NODE</span>
+          </div>
+          <div className="px-3 py-2 text-[12px] leading-relaxed bg-indigo-500/5 border border-indigo-500/10 rounded-lg">
+            {historicalNode || "No historical data found"}
+          </div>
+        </div>
+
+        {/* GitHub Evidence */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/20">
+              <svg className="h-2.5 w-2.5 text-emerald-400/60" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+            </div>
+            <span className="text-[10px] font-bold text-emerald-300/80 tracking-wider">GITHUB EVIDENCE</span>
+          </div>
+          <div className="px-3 py-2 text-[12px] leading-relaxed bg-emerald-500/5 border border-emerald-500/10 rounded-lg">
+            {githubEvidence || "No GitHub activity detected"}
+          </div>
+        </div>
+
+        {/* Penalty Calculation */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/10 border border-amber-500/20">
+              <TrendingDown className="h-2.5 w-2.5 text-amber-400/60" />
+            </div>
+            <span className="text-[10px] font-bold text-amber-300/80 tracking-wider">PENALTY CALCULATION</span>
+          </div>
+          <div className="px-3 py-2 text-[12px] leading-relaxed bg-amber-500/5 border border-amber-500/10 rounded-lg">
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <span>Base Score:</span>
+                <span className="font-mono">100%</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Contradiction Penalty:</span>
+                <span className="font-mono text-red-400">{penaltyCalculation?.penalty || "40%"}</span>
+              </div>
+              <div className="flex justify-between border-t border-white/10 pt-1">
+                <span className="font-semibold">Final Score:</span>
+                <span className="font-mono font-semibold">{trustScore}%</span>
+              </div>
+              {trustDelta && (
+                <div className="flex justify-between text-[10px] text-red-400/60">
+                  <span>Score Change:</span>
+                  <span className="font-mono">{trustDelta > 0 ? '+' : ''}{trustDelta}%</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer with explanation */}
+      <div className="px-4 py-2.5 border-t border-red-500/15 bg-red-500/3">
+        <div className="flex items-center justify-between text-[10px] text-red-300/70">
+          <span>System Logic: Cross-referencing claims against historical data and code activity</span>
+          <span className="font-mono text-[9px] text-red-400/50">AI-ANALYSIS v1.0</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 /* ── Helper to decide bubble style from trust score instead of string matching ── */
 function isLowTrust(msg) {
   return msg.trustScore != null && msg.trustScore < 40;
@@ -799,6 +915,21 @@ export default function ChatInterface() {
                                 {formatTime(msg.timestamp)}
                               </span>
                             </div>
+
+                            {/* Contradiction Card - Only show when trust score is low */}
+                            {isLowTrust(msg) && (
+                              <ContradictionCard
+                                analysis={msg.content}
+                                trustScore={msg.trustScore}
+                                trustDelta={msg.trustDelta}
+                                currentClaim={messages[i - 1]?.content || "Unknown claim"}
+                                historicalNode={memories.length > 0 ? memories[0].content : "No historical data found"}
+                                githubEvidence="No GitHub activity detected"
+                                penaltyCalculation={{ 
+                                  penalty: msg.trustDelta ? `${Math.abs(msg.trustDelta)}%` : "40%" 
+                                }}
+                              />
+                            )}
 
                             {/* Bubble */}
                             <SpotlightCard

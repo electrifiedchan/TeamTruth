@@ -1,9 +1,27 @@
+
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import Groq from 'groq-sdk';
 
-dotenv.config();
+// Load environment variables from .env file
+dotenv.config({ path: process.cwd() + '/.env' });
+
+// Verify required environment variables are loaded
+if (!process.env.GROQ_API_KEY) {
+  console.error('❌ GROQ_API_KEY is not set in environment variables');
+  process.exit(1);
+}
+
+if (!process.env.HINDSIGHT_API_KEY) {
+  console.error('❌ HINDSIGHT_API_KEY is not set in environment variables');
+  process.exit(1);
+}
+
+if (!process.env.BANK_ID) {
+  console.error('❌ BANK_ID is not set in environment variables');
+  process.exit(1);
+}
 
 const app = express();
 app.use(cors());
@@ -59,32 +77,83 @@ function updateTrust(user, evaluation) {
 // HINDSIGHT HELPERS
 // ==========================================
 async function recallMemories(queryText) {
-    try {
-        const response = await fetch(`https://api.hindsight.vectorize.io/v1/default/banks/${BANK_ID}/memories/recall`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${HINDSIGHT_KEY}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: queryText })
-        });
-        if (!response.ok) throw new Error(`Recall Failed: ${response.status}`);
-        const data = await response.json();
-        return data.results && data.results.length > 0
-            ? data.results.map(m => m.text).join('\n- ')
-            : 'No past memories found.';
-    } catch (error) {
-        console.error('❌ Hindsight Error:', error.message);
-        return 'Memory offline.';
+    const maxRetries = 3;
+    const retryDelay = 1000; // 1 second
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            console.log(`📡 Hindsight Recall - Attempt ${attempt}/${maxRetries}: "${queryText}"`);
+            
+            const response = await fetch(`https://api.hindsight.vectorize.io/v1/default/banks/${BANK_ID}/memories/recall`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${HINDSIGHT_KEY}`, 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({ query: queryText })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Recall Failed: ${response.status} - ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            const memories = data.results && data.results.length > 0
+                ? data.results.map(m => m.text).join('\n- ')
+                : 'No past memories found.';
+                
+            console.log(`✅ Hindsight Recall Success - Found ${data.results?.length || 0} memories`);
+            return memories;
+            
+        } catch (error) {
+            console.error(`❌ Hindsight Recall Error (Attempt ${attempt}):`, error.message);
+            
+            if (attempt === maxRetries) {
+                console.error('❌ Hindsight Recall Failed after all retries');
+                return 'Memory offline.';
+            }
+            
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, retryDelay * attempt));
+        }
     }
 }
 
 async function retainMemory(content) {
-    try {
-        await fetch(`https://api.hindsight.vectorize.io/v1/default/banks/${BANK_ID}/memories`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${HINDSIGHT_KEY}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: [{ content }] })
-        });
-    } catch (error) {
-        console.error('❌ Failed to retain memory:', error.message);
+    const maxRetries = 3;
+    const retryDelay = 500; // 0.5 second
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            console.log(`💾 Hindsight Retain - Attempt ${attempt}/${maxRetries}: "${content.substring(0, 50)}..."`);
+            
+            const response = await fetch(`https://api.hindsight.vectorize.io/v1/default/banks/${BANK_ID}/memories`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${HINDSIGHT_KEY}`, 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({ items: [{ content }] })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Retain Failed: ${response.status} - ${response.statusText}`);
+            }
+            
+            console.log(`✅ Hindsight Retain Success`);
+            return true;
+            
+        } catch (error) {
+            console.error(`❌ Hindsight Retain Error (Attempt ${attempt}):`, error.message);
+            
+            if (attempt === maxRetries) {
+                console.error('❌ Hindsight Retain Failed after all retries');
+                return false;
+            }
+            
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, retryDelay * attempt));
+        }
     }
 }
 
@@ -178,7 +247,9 @@ app.post('/api/chat', rateLimitMiddleware, async (req, res) => {
     if (!message || !user) return res.status(400).json({ error: 'Missing user or message.' });
 
     try {
-        const memories = await recallMemories(message);
+        // 🔒 CONTEXT FIX: Bind query to user to prevent memory bleeding
+        const query = `[User: ${user}] Claim: ${message}`;
+        const memories = await recallMemories(query);
 
         // Call 1: Freeform analysis
         const analysis = await getAnalysis(user, message, memories);
@@ -260,11 +331,42 @@ app.get('/api/memories/:user', async (req, res) => {
     }
 });
 
-// CLEAR ENDPOINT
+// CLEAR ENDPOINT — TRUE RESET using Hindsight DELETE API
 app.post('/api/memory/clear', async (req, res) => {
-    trustLedger.clear();
-    await retainMemory('SYSTEM OVERRIDE: PROJECT RESET. Ignore all previous claims and lies. Start fresh.');
-    res.json({ success: true, message: 'Memory Context and Trust Ledger cleared.' });
+    try {
+        // Clear in-memory trust ledger
+        trustLedger.clear();
+        
+        // Execute actual Hindsight DELETE request to wipe the memory graph
+        const deleteResponse = await fetch(
+            `https://api.hindsight.vectorize.io/v1/default/banks/${BANK_ID}/memories`,
+            {
+                method: 'DELETE',
+                headers: { 
+                    'Authorization': `Bearer ${HINDSIGHT_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        if (!deleteResponse.ok) {
+            throw new Error(`Hindsight DELETE failed: ${deleteResponse.status}`);
+        }
+
+        console.log('✅ Memory bank wiped clean — no context pollution');
+        res.json({ 
+            success: true, 
+            message: 'Memory bank and Trust Ledger completely cleared.',
+            method: 'hindsight_delete_api'
+        });
+    } catch (error) {
+        console.error('❌ Failed to clear memory bank:', error.message);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to clear memory bank',
+            details: error.message 
+        });
+    }
 });
 
 // HEALTH CHECK
